@@ -1,1 +1,8 @@
+# Python virtual environment
+backend/python/venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
 .DS_Store
