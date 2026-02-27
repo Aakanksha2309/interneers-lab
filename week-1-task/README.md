@@ -1,6 +1,6 @@
 ## *GET_API Using Hexagonal Architecture*
 
-This projectc implements a simple GET API that provides *Greeting* and *Farewell* messages. 
+This project implements a simple GET API that provides *Greeting* and *Farewell* messages. 
 It's structured using Hexagonal architecture which provide seperate core business logic, application use cases and interface adapters.
 
 ## *Project Structure* 
