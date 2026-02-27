@@ -4,6 +4,7 @@ This projectc implements a simple GET API that provides *Greeting* and *Farewell
 It's structured using Hexagonal architecture which provide seperate core business logic, application use cases and interface adapters.
 
 ## *Project Structure* 
+'''
 week-1 task/
   domain/  # Core business logic
      greeting_service.py  
@@ -12,7 +13,7 @@ week-1 task/
   myproject/views.py    # Adapter 
   manage.py       
   db.sqlite3   
-
+'''
 ## *Architecture*
 
 * *Domain Layer:*
