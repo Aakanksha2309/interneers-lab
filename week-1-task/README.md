@@ -5,13 +5,13 @@ It's structured using Hexagonal architecture which provide seperate core busines
 
 ## *Project Structure* 
 week-1 task/
-├── domain/  # Core business logic
-│   └── greeting_service.py  
-├── application/     # Application layer (Port) 
-│   └── greeting_use_case.py 
-├── myproject/views.py    # Adapter 
-├── manage.py       
-└── db.sqlite3   
+  domain/  # Core business logic
+     greeting_service.py  
+  application/     # Application layer (Port) 
+     greeting_use_case.py 
+  myproject/views.py    # Adapter 
+  manage.py       
+  db.sqlite3   
 
 ## *Architecture*
 
