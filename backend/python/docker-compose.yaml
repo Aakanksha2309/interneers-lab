@@ -1,14 +1,27 @@
+
 services:
-  mongodb:
-    image: mongo:8.0
-    container_name: interneers_lab_2026_mongodb
+
+  db:
+    image: mongo:latest
     ports:
-      - '27019:27017'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_HOST=db 
+      - MONGO_PORT=27017
+      - MONGO_DB=product_db
+    depends_on:
+      - db
 
 volumes:
   mongodb_data:

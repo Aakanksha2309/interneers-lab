@@ -10,7 +10,29 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os 
+from dotenv import load_dotenv
+from mongoengine import connect
 from pathlib import Path
+
+#Loading the environment variables 
+load_dotenv()
+
+DB_NAME=os.getenv('MONGO_DB','product_db')
+DB_HOST=os.getenv('MONGO_HOST','localhost')
+DB_PORT=int(os.getenv('MONGO_PORT',27017)) #Default port also provided
+
+#Establish the connection 
+try:
+    connect(
+        db=DB_NAME,
+        host=DB_HOST,
+        port=DB_PORT
+    )
+    print(f"Successfully connected to {DB_NAME}")
+except Exception as e:
+    print(f"MongoDB connection error:{e}")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,9 +98,8 @@ WSGI_APPLICATION = "django_app.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE':'django.db.backends.dummy'
     }
 }
 
@@ -118,8 +139,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
