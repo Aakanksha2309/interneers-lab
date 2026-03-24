@@ -1,19 +1,18 @@
+
 from rest_framework import serializers
 
-class productSerializer(serializers.Serializer):
-    id=serializers.IntegerField(read_only=True)
-    name=serializers.CharField(max_length=100)
-    description=serializers.CharField(max_length=500)
-    price=serializers.FloatField()
-    quantity=serializers.IntegerField()
-    brand=serializers.CharField(max_length=50)
-    category=serializers.CharField(max_length=50)
+class ProductSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=200)
+    description = serializers.CharField(max_length=1000, required=False)
+    category = serializers.ChoiceField(choices=['Electronics', 'Apparel', 'Home', 'Groceries'])
+    brand = serializers.CharField()
+    #Validation for price to be positive
+    price = serializers.FloatField(min_value=0.01,error_messages={"min_value": "Price must be a positive value greater than zero.","invalid": "Please enter a valid decimal number for the price."})
+    #Validation for quantity cannot be negative 
+    warehouse_quantity = serializers.IntegerField(min_value=0,error_messages={
+            "min_value": "Inventory cannot be negative."})
+    # Audit fields 
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
 
-    def validate_price(self,value):
-        if(value<0):
-            raise serializers.ValidationError("Price must be greater than 0")
-        return value
-    def validate_quantity(self,value):
-        if(value<0):
-            raise serializers.ValidationError("Quantity must be greater than 0")
-        return value
+   
