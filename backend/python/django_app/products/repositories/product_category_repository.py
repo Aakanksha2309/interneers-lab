@@ -33,7 +33,6 @@ class CategoryRepository:
             setattr(category, key, value)
         category.save()
         return category
-
     #Delete category which don't have any product under it 
     def delete(self, category_id):
         category = self.get_by_id(category_id)
