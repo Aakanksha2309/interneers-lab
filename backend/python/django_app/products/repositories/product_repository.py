@@ -6,7 +6,6 @@ It also manages fetching products from category, adding product to category, rem
 from ..models.product import Product
 from mongoengine.errors import DoesNotExist, ValidationError
 
-
 class ProductRepository:
     
     #Handles all direct interactions with MongoDB using MongoEngine.
