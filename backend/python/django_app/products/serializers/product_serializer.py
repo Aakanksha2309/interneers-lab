@@ -14,7 +14,6 @@ class ProductSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=1000, required=False,allow_blank=True)
     category_id = serializers.CharField(write_only=True,required=False)
     brand = serializers.CharField(required=True)
-
    #inventory tracking fields
     warehouse_quantity = serializers.IntegerField(min_value=0)
     low_stock_threshold = serializers.IntegerField(min_value=1,required=False, default=10)
