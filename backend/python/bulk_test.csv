@@ -1,0 +1,6 @@
+name,brand,category,warehouse_quantity,selling_price,cost_price,is_perishable,expiry_date,description
+"Office Chair","Steelcase","69c271f5e6e67864187507af",12,499.00,300.00,false,,"Ergonomic with lumbar support"
+"Organic Whole Milk","DairyFarm","69c0681754f780845fed1781",100,4.50,2.10,true,2026-04-10T00:00:00,"Fresh daily 1 Gallon"
+"4K Gaming Monitor","Samsung","69c271f5e6e67864187507af",25,349.50,210.00,false,,"144Hz Refresh Rate"
+"Fresh Yogurt","GreekCo","69c0681754f780845fed1782",80,5.99,2.50,true,2026-04-15T00:00:00,"Probiotic Strawberry 500g"
+"Mechanical Keyboard","Logitech","69c0681754f780845fed1781",45,129.99,80.00,false,,"RGB Backlit Brown Switches"
