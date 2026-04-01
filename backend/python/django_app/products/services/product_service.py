@@ -140,7 +140,7 @@ class ProductService:
     #Update product details
     def update_product(self, product_id, data):
 
-        self.get_product(product_id)       
+        #self.get_product(product_id)       
         payload = self._merge_category_into_payload(data)
         updated = self.repository.update(product_id, payload)
         if updated is None:
