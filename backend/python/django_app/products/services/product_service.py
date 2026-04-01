@@ -113,7 +113,7 @@ class ProductService:
     #Update product details
     def update_product(self, product_id, data):
 
-        self.get_product(product_id)       
+        #self.get_product(product_id)       
         payload = self._merge_category_into_payload(data)
         updated = self.repository.update(product_id, payload)
         if updated is None:
@@ -127,7 +127,7 @@ class ProductService:
         return True
 
     # Category Management logic
-    #Fetch producst from a prticulr category
+    #Fetch products from a particular category
     def fetch_products_for_category(self, category_id):
         category = self.category_repository.get_by_id(category_id)
         if not category:

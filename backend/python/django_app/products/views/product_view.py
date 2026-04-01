@@ -127,7 +127,7 @@ class ProductDetailView(APIView):
             return Response({
             "status": "success",
             "message": f"Product with ID {product_id} was successfully deleted.",
-            }, status=status.HTTP_204_NO_CONTENT)
+            }, status=status.HTTP_200_OK)
         except ProductNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 

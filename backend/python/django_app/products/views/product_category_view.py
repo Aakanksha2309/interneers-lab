@@ -59,7 +59,7 @@ class ProductCategoryDetailAPIView(APIView):
             return Response({
             "status": "success",
             "message": f"Category with ID {category_id} was successfully deleted.",
-            }, status=status.HTTP_204_NO_CONTENT)
+            }, status=status.HTTP_200_OK)
         except CategoryNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
         except ValueError as e:
