@@ -10,8 +10,9 @@ class CategoryRepository:
     def get_by_id(self, category_id):
         return ProductCategory.objects(id=category_id).first()
 
-    def get_category_by_id(self, cat_id):
-        return self.get_by_id(cat_id)
+    #Finds a category by its title
+    def get_by_title(self, title):
+        return ProductCategory.objects(title=title).first()
 
     # Get a list of every category
     def get_all(self):
@@ -32,7 +33,7 @@ class CategoryRepository:
             setattr(category, key, value)
         category.save()
         return category
-        
+
     #Delete category which don't have any product under it 
     def delete(self, category_id):
         category = self.get_by_id(category_id)
@@ -42,5 +43,5 @@ class CategoryRepository:
             category.delete()
             return True
         except OperationError:
-            return "IN_USE"
+            return None
     

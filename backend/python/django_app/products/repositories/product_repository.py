@@ -6,6 +6,7 @@ It also manages fetching products from category, adding product to category, rem
 from ..models.product import Product
 from mongoengine.errors import DoesNotExist, ValidationError
 
+
 class ProductRepository:
     
     #Handles all direct interactions with MongoDB using MongoEngine.
@@ -66,9 +67,9 @@ class ProductRepository:
         product.save()
         return product
 
-    # Unlink a product from its category
-    def remove_category(self,product,category):
-        product.category=None
+    # Unlink a product from its category and assigning it in uncategorised section
+    def remove_category(self,product,default_category):
+        product.category = default_category
         product.save()
         return product
 

@@ -4,7 +4,7 @@ It manages catalog filtering, individual product CRUD, and CSV bulk uploads.
 """
 from ..serializers.product_serializer import ProductSerializer
 from ..services.product_service import ProductService
-from ..exceptions import CategoryNotFoundError, ProductNotFoundError,BulkValidationError
+from ..exceptions import CategoryNotFoundError, ProductNotFoundError,BulkValidationError,BusinessValidationError
 from datetime import datetime  
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -69,6 +69,8 @@ class ProductView(APIView):
 
         except ValueError:
             return Response({"error": "Invalid pagination parameters"}, status=400)
+        except BusinessValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
     # Create a new product 
     def post(self, request):
@@ -127,11 +129,11 @@ class ProductDetailView(APIView):
             return Response({
             "status": "success",
             "message": f"Product with ID {product_id} was successfully deleted.",
-            }, status=status.HTTP_204_NO_CONTENT)
+            }, status=status.HTTP_200_OK)
         except ProductNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-    #PRODUCT OPERARIONS BASED ON CATEGORY 
+    #PRODUCT OPERATIONS BASED ON CATEGORY 
 class ProductCategoryView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -167,6 +169,8 @@ class ProductCategoryView(APIView):
             return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
         except ProductNotFoundError as e:
             return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
+        except BusinessValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductBulkUploadView(APIView):
