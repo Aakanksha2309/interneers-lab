@@ -17,3 +17,4 @@ class BulkValidationError(Exception):
     """error for CSV uploads"""
     def __init__(self, details):
         self.details = details 
+        super().__init__(str(details))

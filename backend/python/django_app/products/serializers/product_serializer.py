@@ -12,14 +12,14 @@ class ProductSerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=200)
     description = serializers.CharField(max_length=1000, required=False,allow_blank=True)
-    category_id = serializers.CharField(write_only=True)
+    category_id = serializers.CharField(write_only=True,required=False)
     brand = serializers.CharField(required=True)
     # Makes category_id optional during a partial update (PATCH)
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get("partial"):
-            self.fields["category_id"].required = False
-   #inventory trackign fields
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if kwargs.get("partial"):
+    #         self.fields["category_id"].required = False
+   #inventory tracking fields
     warehouse_quantity = serializers.IntegerField(min_value=0)
     low_stock_threshold = serializers.IntegerField(required=False, default=10)
 

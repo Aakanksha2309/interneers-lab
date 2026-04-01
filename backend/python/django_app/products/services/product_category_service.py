@@ -5,6 +5,8 @@ It raises specific exceptions.
 from ..exceptions import CategoryNotFoundError
 from ..repositories.product_category_repository import CategoryRepository
 from mongoengine.errors import NotUniqueError
+from bson import ObjectId
+
 
 class CategoryService:
     def __init__(self):
@@ -23,6 +25,8 @@ class CategoryService:
     
     # Find one category by id 
     def get_category_by_id(self,category_id):
+        if not ObjectId.is_valid(category_id):
+            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
         category=self.repository.get_by_id(category_id)
         if not category:
             raise CategoryNotFoundError("Category not found!")
@@ -30,6 +34,9 @@ class CategoryService:
     
     # Update category info
     def update_category(self, category_id, data):
+        #Category id is valid or not 
+        if not ObjectId.is_valid(category_id):              
+            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
         updated = self.repository.update(category_id, data)
         if updated is None:
             raise CategoryNotFoundError("Category not found!")
@@ -37,8 +44,11 @@ class CategoryService:
     
     # Delete category only if it is not being used by any products
     def delete_category(self, category_id):
+        #Checking if category id is a valid id or not 
+        if not ObjectId.is_valid(category_id):
+            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
         result = self.repository.delete(category_id)
-        if result == "IN_USE":
+        if result is None:
             raise ValueError("Cannot delete category: Products are still assigned to it.")
         if not result:
             raise CategoryNotFoundError("Category not found!")

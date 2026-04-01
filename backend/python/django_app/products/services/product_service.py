@@ -20,19 +20,31 @@ class ProductService:
     #Converts a Category ID string into a Database Object
     def _merge_category_into_payload(self, data):
         payload = data.copy()
+        category_id = payload.get("category_id")
 
-        if "category_id" not in payload:
-            return payload 
+        if not category_id:
+            # User provided NO ID, so find the "Uncategorized" default
+            category = self.category_repository.get_by_title("Uncategorized")
+            
+            # If "Uncategorized" doesn't even exist in DB, create it now
+            if not category:
+                category = self.category_repository.create({
+                    "title": "Uncategorized",
+                    "description": "Default category for products"
+                })
 
-        category_id = payload.pop("category_id") 
-        if not ObjectId.is_valid(category_id):  #Extract the ID and verify it is a valid MongoDB format
-            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
+        else:
+            #Extract the ID and verify it is a valid MongoDB format
+            if not ObjectId.is_valid(category_id):
+                raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
+            
+            category = self.category_repository.get_by_id(category_id)    
+            if not category:
+                raise CategoryNotFoundError("Invalid category ID")
         
-        category = self.category_repository.get_by_id(category_id)    
-        if not category:
-            raise CategoryNotFoundError("Invalid category ID")
-        
-        payload["category"] = category # Swap the ID string for the real Object
+        # Remove the string ID and attach the actual Category Object
+        payload.pop("category_id", None) 
+        payload["category"] = category
         
         return payload
     
@@ -49,12 +61,27 @@ class ProductService:
             mongo_query["name__icontains"] = active_filters["search"]
         # Category Filter 
         if "category_ids" in active_filters and active_filters["category_ids"]:
-            try:
-                #Converts a comma-separated string of IDs into a list of Objects
-                cids = active_filters["category_ids"].split(",")
-                mongo_query["category__in"] = [ObjectId(cid.strip()) for cid in cids if cid.strip()]
-            except Exception:
-                 raise ValueError("Invalid category_ids format")
+            cids = [cid.strip() for cid in active_filters["category_ids"].split(",") if cid.strip()]
+            valid_oids = []
+            
+            for cid in cids:
+                if ObjectId.is_valid(cid):
+                    valid_oids.append(ObjectId(cid))
+                else:
+                    raise BusinessValidationError(f"Invalid category ID format: '{cid}'")
+            
+            if valid_oids:
+                mongo_query["category__in"] = valid_oids
+            else:
+                # If they provided a key but no valid IDs, 
+                # force an empty result by searching for a non-existent ID
+                mongo_query["category"] = ObjectId("000000000000000000000000")
+            # try:
+            #     #Converts a comma-separated string of IDs into a list of Objects
+            #     cids = active_filters["category_ids"].split(",")
+            #     mongo_query["category__in"] = [ObjectId(cid.strip()) for cid in cids if cid.strip()]
+            # except Exception:
+            #      raise ValueError("Invalid category_ids format")
 
        #Handles Price ranges and Expiry dates
         if "is_perishable" in active_filters:
@@ -129,6 +156,8 @@ class ProductService:
     # Category Management logic
     #Fetch products from a particular category
     def fetch_products_for_category(self, category_id):
+        if not ObjectId.is_valid(category_id):
+            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
         category = self.category_repository.get_by_id(category_id)
         if not category:
             raise CategoryNotFoundError("Category not found!")
@@ -137,25 +166,40 @@ class ProductService:
     #Assign category to a product
     def add_product_to_category(self, category_id, product_id):
         product = self.get_product(product_id)
-        category = self.category_repository.get_category_by_id(category_id)
+        if not ObjectId.is_valid(category_id):
+            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
+        if product.category and str(product.category.id) == str(category_id):
+            return product
+        category = self.category_repository.get_by_id(category_id)
         if not category:
             raise CategoryNotFoundError("Given category not found!")
         return self.repository.assign_category(product, category)
 
-    #Remove product from a category
+    #Remove product from a category( assigning uncategorised category to such products )
     def remove_product_from_category(self, category_id, product_id):
         product = self.get_product(product_id)
-        category = self.category_repository.get_category_by_id(category_id)
-        if not category:
-            raise CategoryNotFoundError("Given category not found!")
-        return self.repository.remove_category(product, category)
+        if not ObjectId.is_valid(category_id):
+            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
+        if not product.category or str(product.category.id) != str(category_id):
+            raise BusinessValidationError(
+                f"Conflict: Product {product_id} is not currently in category {category_id}. "
+                "Action aborted to prevent accidental data overwriting."
+            )
+        default_cat = self.category_repository.get_by_title("Uncategorized") 
+        # Create it if it doesn't exist
+        if not default_cat:
+            default_cat = self.category_repository.create({
+                "title": "Uncategorized",
+                "description": "Default category for products"
+            })
+        return self.repository.remove_category(product, default_cat)
 
     #Bulk upload data using csv files 
     def bulk_create_from_csv(self, file_obj):
         if not file_obj.name.endswith('.csv'):
             raise BulkValidationError(details="File must be in .csv format")
         
-        # 1. Setup counters and storage
+        # Setup counters and storage
         decoded_file = file_obj.read().decode('utf-8')
         reader = list(csv.DictReader(io.StringIO(decoded_file))) # Convert to list to get length
         total_rows = len(reader)
@@ -164,7 +208,7 @@ class ProductService:
         errors_list = []
         batch_time = datetime.now(UTC)
 
-        # 2. Process rows
+        # Process rows
         for index, row in enumerate(reader):
             row_num = index + 2 # Header is row 1, first data is row 2
             
@@ -192,11 +236,11 @@ class ProductService:
                 readable_errors = ", ".join([f"{k}: {v[0]}" for k, v in serializer.errors.items()])
                 errors_list.append({"row": row_num, "error": readable_errors})
 
-        # 3. Execution Phase
+        # Execution Phase
         if valid_payloads:
             self.repository.bulk_create(valid_payloads)
 
-        # 4. Construct your custom Response Object
+        # Construct your custom Response Object
         return {
             "total": total_rows,
             "success": len(valid_payloads),
