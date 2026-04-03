@@ -14,13 +14,21 @@ class ProductSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=1000, required=False,allow_blank=True)
     category_id = serializers.CharField(write_only=True,required=False)
     brand = serializers.CharField(required=True)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5155439 (test: add unit,integration suites and regression script)
    #inventory tracking fields
     warehouse_quantity = serializers.IntegerField(min_value=0)
     low_stock_threshold = serializers.IntegerField(min_value=1,required=False, default=10)
 
     # perishable
     is_perishable = serializers.BooleanField(default=False)
+<<<<<<< HEAD
     expiry_date = serializers.DateTimeField(required=False)
+=======
+    expiry_date = serializers.DateTimeField(required=False, allow_null=True)
+>>>>>>> 5155439 (test: add unit,integration suites and regression script)
     cost_price = serializers.DecimalField(min_value=0,max_digits=10, decimal_places=2,required=False)
     selling_price = serializers.DecimalField(min_value=0,max_digits=10, decimal_places=2)
 

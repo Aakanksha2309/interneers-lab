@@ -4,6 +4,7 @@ from ...models.product import Product
 from decimal import Decimal
 from datetime import datetime, timedelta, timezone
 
+
 class Command(BaseCommand):
     help = 'Seeds initial products into MongoDB'
 
@@ -80,6 +81,7 @@ class Command(BaseCommand):
         ]
 
         self.stdout.write("Seeding core products...")
+
         for p_data in CORE_PRODUCTS:
             exists = Product.objects(name=p_data["name"]).first()
             if not exists:
