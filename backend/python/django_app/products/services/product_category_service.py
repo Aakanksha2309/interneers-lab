@@ -15,6 +15,10 @@ class CategoryService:
     # Create a new category 
     def create_category(self,data):
         try:
+            title = data.get("title", "").strip()
+            existing = self.repository.get_by_title_case_insensitive(title)
+            if existing:
+                raise ValueError(f"Category '{title}' already exists.")
             return self.repository.create(data)
         except NotUniqueError:
             raise ValueError(f"Category '{data.get('title')}' already exists.")
@@ -37,7 +41,17 @@ class CategoryService:
         #Category id is valid or not 
         if not ObjectId.is_valid(category_id):              
             raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
-        updated = self.repository.update(category_id, data)
+  
+        title = data.get("title")
+        payload = {}
+        if title is not None:
+            title = title.strip()
+            existing = self.repository.get_by_title_case_insensitive(title)
+            if existing and str(existing.id) != category_id:
+                raise ValueError(f"Category '{title}' already exists.")
+            payload["title"] = title
+
+        updated = self.repository.update(category_id, payload)
         if updated is None:
             raise CategoryNotFoundError("Category not found!")
         return updated

@@ -24,7 +24,7 @@ class ProductService:
 
         if not category_id:
             # User provided NO ID, so find the "Uncategorized" default
-            category = self.category_repository.get_by_title("Uncategorized")
+            category = self.category_repository.get_by_title_case_insensitive("Uncategorized")
             
             # If "Uncategorized" doesn't even exist in DB, create it now
             if not category:
@@ -76,13 +76,7 @@ class ProductService:
                 # If they provided a key but no valid IDs, 
                 # force an empty result by searching for a non-existent ID
                 mongo_query["category"] = ObjectId("000000000000000000000000")
-            # try:
-            #     #Converts a comma-separated string of IDs into a list of Objects
-            #     cids = active_filters["category_ids"].split(",")
-            #     mongo_query["category__in"] = [ObjectId(cid.strip()) for cid in cids if cid.strip()]
-            # except Exception:
-            #      raise ValueError("Invalid category_ids format")
-
+           
        #Handles Price ranges and Expiry dates
         if "is_perishable" in active_filters:
             mongo_query["is_perishable"] = active_filters["is_perishable"]
@@ -140,8 +134,9 @@ class ProductService:
     #Update product details
     def update_product(self, product_id, data):
 
-        #self.get_product(product_id)       
-        payload = self._merge_category_into_payload(data)
+        payload = data.copy()
+        if "category_id" in payload:
+            payload = self._merge_category_into_payload(payload)
         updated = self.repository.update(product_id, payload)
         if updated is None:
             raise ProductNotFoundError(f"Product with ID {product_id} not found.")
@@ -185,7 +180,7 @@ class ProductService:
                 f"Conflict: Product {product_id} is not currently in category {category_id}. "
                 "Action aborted to prevent accidental data overwriting."
             )
-        default_cat = self.category_repository.get_by_title("Uncategorized") 
+        default_cat = self.category_repository.get_by_title_case_insensitive("Uncategorized") 
         # Create it if it doesn't exist
         if not default_cat:
             default_cat = self.category_repository.create({
@@ -211,7 +206,6 @@ class ProductService:
         # Process rows
         for index, row in enumerate(reader):
             row_num = index + 2 # Header is row 1, first data is row 2
-            
             clean_row = {k: v.strip() for k, v in row.items() if v and v.strip() != ""}
             
             if 'category' in clean_row:
