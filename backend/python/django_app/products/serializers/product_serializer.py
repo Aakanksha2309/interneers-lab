@@ -20,7 +20,7 @@ class ProductSerializer(serializers.Serializer):
 
     # perishable
     is_perishable = serializers.BooleanField(default=False)
-    expiry_date = serializers.DateTimeField(required=False, allow_null=True)
+    expiry_date = serializers.DateTimeField(required=False)
     cost_price = serializers.DecimalField(min_value=0,max_digits=10, decimal_places=2,required=False)
     selling_price = serializers.DecimalField(min_value=0,max_digits=10, decimal_places=2)
 

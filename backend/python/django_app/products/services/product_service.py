@@ -88,6 +88,7 @@ class ProductService:
             mongo_query["selling_price__lte"] = active_filters["max_price"]
 
         if "expires_before" in active_filters:
+            mongo_query["is_perishable"] = True
             mongo_query["expiry_date__lte"] = active_filters["expires_before"]
 
         #Compares warehouse quantity and threshold quantity
@@ -121,6 +122,12 @@ class ProductService:
     # Standard CRUD operations
     #Create product
     def create_product(self, data):
+        name = data.get('name')
+        brand = data.get('brand')
+        existing = self.repository.get_by_name_and_brand(name, brand)
+        if existing:
+           # Product with given name and brand already exists 
+            raise ValueError(f"Conflict: {name} by {brand} is already in the system.")
         payload = self._merge_category_into_payload(data)
         return self.repository.create(payload)
     

@@ -15,6 +15,10 @@ class ProductRepository:
     def create(self, validated_data):
         product = Product(**validated_data)
         return product.save()
+    
+    # Getting a product with particular name and brand
+    def get_by_name_and_brand(self,name, brand):
+        return Product.objects(name=name, brand=brand).first()
  
     # Handles searching and pagination
     def get_paginated(self, mongo_query, raw_query, skip, limit=10):

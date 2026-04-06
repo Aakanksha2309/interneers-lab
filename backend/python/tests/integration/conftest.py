@@ -6,7 +6,8 @@ This file sets up everything needed to run tests smoothly.
 It connects to the test database, clears data between tests,
 and provides an API client to simulate real API calls.
 """
-
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_app.settings")
 import pytest
 from django.core.management import call_command
 from mongoengine import connect, disconnect

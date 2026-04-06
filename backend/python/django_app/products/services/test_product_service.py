@@ -38,11 +38,26 @@ def service():
 @pytest.mark.parametrize(
     "data, category_exists, default_exists, expected_exception",
     [
-        ({"category_id": "507f1f77bcf86cd799439011"}, True,  True,  None),
-        ({"category_id": "507f1f77bcf86cd799439011"}, False, True,  CategoryNotFoundError),
-        ({"category_id": "invalid-id"},               True,  True,  CategoryNotFoundError),
-        ({},                                         True,  True,  None),
-        ({},                                         True,  False, None),
+        (
+            {"name": "Milk", "brand": "Dairy", "category_id": "507f1f77bcf86cd799439011"},
+            True, True, None
+        ),
+        (
+            {"name": "Bread", "brand": "Bakery", "category_id": "507f1f77bcf86cd799439011"},
+            False, True, CategoryNotFoundError
+        ),
+        (
+            {"name": "Eggs", "brand": "Farm", "category_id": "invalid-id"},
+            True, True, CategoryNotFoundError
+        ),
+        (
+            {"name": "Apple", "brand": "Orchard"},
+            True, True, None
+        ),
+        (
+            {"name": "Banana", "brand": "Tropical"},
+            True, False, None
+        ),
     ]
 )
 def test_create_product(service, data, category_exists, default_exists, expected_exception):
@@ -54,6 +69,7 @@ def test_create_product(service, data, category_exists, default_exists, expected
       4. No ID provided; finds existing 'Uncategorized' default.
       5. No ID and no default exists; service creates 'Uncategorized' during execution.
     """
+    service.repository.get_by_name_and_brand.return_value = None
     # Mock category lookup
     if "category_id" in data and ObjectId.is_valid(data["category_id"]):
         service.category_repository.get_by_id.return_value = (
@@ -191,7 +207,7 @@ def test_delete_product(service, repo_return, should_raise):
     [
         ("507f1f77bcf86cd799439011", True, None),
         ("507f1f77bcf86cd799439011", False, CategoryNotFoundError),
-        ("invalid-id",                True, CategoryNotFoundError),
+        ("invalid-id", True, CategoryNotFoundError),
     ]
 )
 def test_fetch_products_for_category(service, category_id, category_exists, expected_exception):
@@ -383,7 +399,9 @@ def test_bulk_file_validation(mock_serializer, service, file_name, should_raise)
 # --- GET CATALOG WITHOUT FILTER ---
 
 def test_get_catalog_no_filters(service):
-    """When no search terms, requests paginated list with empty query."""
+    """
+    When no search terms, requests paginated list with empty query.
+    """
     service.repository.get_paginated.return_value = (["p1"], 1)
     result = service.get_catalog(page=1, limit=10, active_filters={})
     assert result["products"] == ["p1"]
@@ -407,11 +425,13 @@ def test_get_catalog_no_filters(service):
         ({"min_price": 50},                {"selling_price__gte": 50}),
         ({"max_price": 150},               {"selling_price__lte": 150}),
         ({"is_perishable": True},          {"is_perishable":      True}),
-        ({"expires_before": "2026-01-01"}, {"expiry_date__lte":   "2026-01-01"}),
+        ({"expires_before": "2026-01-01"}, {"expiry_date__lte":   "2026-01-01", "is_perishable": True}),
     ]
 )
 def test_get_catalog_filter_mapping(service, filters, expected_mongo):
-    """Checks that input filters are mapped to MongoDB queries correctly."""
+    """
+    Checks that input filters are mapped to MongoDB queries correctly.
+    """
     service.repository.get_paginated.return_value = ([], 0)
     service.get_catalog(page=1, limit=10, active_filters=filters)
     args = service.repository.get_paginated.call_args.kwargs
@@ -420,7 +440,9 @@ def test_get_catalog_filter_mapping(service, filters, expected_mongo):
 # --- COMPLEX FILTER ---
 
 def test_get_catalog_complex_filters(service):
-    """The 'low_stock' flag produces a complex comparison query."""
+    """
+    The 'low_stock' flag produces a complex comparison query.
+    """
     service.repository.get_paginated.return_value = ([], 0)
     service.get_catalog(page=1, limit=10, active_filters={"low_stock": True})
     args = service.repository.get_paginated.call_args.kwargs
@@ -434,12 +456,15 @@ def test_get_catalog_complex_filters(service):
     "category_string, should_raise",
     [
         ("507f1f77bcf86cd799439011,507f1f77bcf86cd799439012", False),
-        ("473662681726fd871",                                 True),
-        ("507f1f77bcf86cd799439011, invalid_id",              True),
-        (" , , ",                                             False),
+        ("473662681726fd871", True),
+        ("507f1f77bcf86cd799439011, invalid_id", True),
+        (" , , ", False),
     ]
 )
 def test_get_catalog_category_id_validation(service, category_string, should_raise):
+    """
+    Test validation and mapping for category_id(s) filter on catalog queries.
+    """
     filters = {"category_ids": category_string}
     service.repository.get_paginated.return_value = ([], 0)
 
@@ -467,7 +492,9 @@ def test_get_catalog_category_id_validation(service, category_string, should_rai
     ]
 )
 def test_get_catalog_pagination_logic(service, page, limit, expected_skip):
-    """Correct skip value based on page and limit."""
+    """
+    Correct skip value based on page and limit.
+    """
     service.repository.get_paginated.return_value = ([], 0)
     service.get_catalog(page=page, limit=limit, active_filters={})
     args = service.repository.get_paginated.call_args.kwargs
@@ -475,6 +502,9 @@ def test_get_catalog_pagination_logic(service, page, limit, expected_skip):
     assert args["limit"] == limit
 
 def test_get_catalog_metadata_flags(service):
+    """
+    Validate extra metadata fields and pagination logic.
+    """
     service.repository.get_paginated.return_value = (["p1"], 25)
     result = service.get_catalog(page=2, limit=10, active_filters={})
     meta = result["metadata"]
@@ -489,6 +519,9 @@ def test_get_catalog_metadata_flags(service):
 # --- Empty search ignored ---
 
 def test_get_catalog_empty_search_ignored(service):
+    """
+    Should ignore and not apply an empty search string filter.
+    """
     service.repository.get_paginated.return_value = ([], 0)
     service.get_catalog(page=1, limit=10, active_filters={"search": ""})
     args = service.repository.get_paginated.call_args.kwargs
