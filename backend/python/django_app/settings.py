@@ -14,24 +14,26 @@ import os
 from dotenv import load_dotenv
 from mongoengine import connect
 from pathlib import Path
-
+import logging
 #Loading the environment variables 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
+# Load database credentials from the .env file
 DB_NAME=os.getenv('MONGO_DB','product_db')
-DB_HOST=os.getenv('MONGO_HOST','localhost')
+DB_HOST=os.getenv('MONGO_HOST','db')
 DB_PORT=int(os.getenv('MONGO_PORT',27017)) #Default port also provided
+DB_USER = os.getenv('MONGO_USER', 'admin')
+DB_PASS = os.getenv('MONGO_PASSWORD', 'secretpassword')
 
+#URI for MongoEngin
+MONGO_URI = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?authSource=admin"
 #Establish the connection 
 try:
-    connect(
-        db=DB_NAME,
-        host=DB_HOST,
-        port=DB_PORT
-    )
-    print(f"Successfully connected to {DB_NAME}")
+    connect(host=MONGO_URI)
+    logger.info(f"Successfully connected to MongoDB: {DB_NAME}")
 except Exception as e:
-    print(f"MongoDB connection error:{e}")
+    logger.error(f"MongoDB connection error: {e}")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
