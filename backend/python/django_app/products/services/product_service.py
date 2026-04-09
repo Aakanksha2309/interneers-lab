@@ -251,15 +251,13 @@ class ProductService:
                 except CategoryNotFoundError as e:
                     errors_list.append({"row": row_num, "error": str(e)})
             else:
-                # Format serializer errors to be more readable in your 'errors' list
+                # Format serializer errors to be more readable
                 readable_errors = ", ".join([f"{k}: {v[0]}" for k, v in serializer.errors.items()])
                 errors_list.append({"row": row_num, "error": readable_errors})
 
-        # Execution Phase
         if valid_payloads:
             self.repository.bulk_create(valid_payloads)
 
-        # Construct your custom Response Object
         return {
             "total": total_rows,
             "success": len(valid_payloads),
