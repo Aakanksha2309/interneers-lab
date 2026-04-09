@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """
 Category Integration Tests
 --------------------------
@@ -16,25 +15,10 @@ def test_create_category(api_client):
     """Test successful category creation."""
     payload = {"title": "Electronics"}
     res = api_client.post("/api/categories/", payload, format="json")
-=======
-import pytest
-
-
-# -----------------------------------
-# CREATE CATEGORY
-# -----------------------------------
-@pytest.mark.django_db
-def test_create_category(api_client):
-    payload = {"title": "Electronics"}
-
-    res = api_client.post("/api/categories/", payload, format="json")
-
->>>>>>> f41cf44 (WEEK-5 initial work)
     assert res.status_code == 201
     assert "id" in res.data
     assert res.data["message"] == "Category created successfully"
 
-<<<<<<< HEAD
 
 @pytest.mark.django_db
 def test_create_category_whitespace_title(api_client):
@@ -81,34 +65,10 @@ def test_create_category_missing_title(api_client):
 def test_get_all_categories(api_client, seeded_data):
     """Test fetching all categories."""
     res = api_client.get("/api/categories/")
-<<<<<<< HEAD
-    assert res.status_code == 400
-=======
-=======
-#CREATING DUPLiCATE CATEGORY
-@pytest.mark.django_db
-def test_create_category_duplicate(api_client):
-    payload = {"title": "Electronics"}
-
-    api_client.post("/api/categories/", payload, format="json")
-    res = api_client.post("/api/categories/", payload, format="json")
-
-    assert res.status_code == 400
-    assert "already exists" in res.data["error"]
-# -----------------------------------
-# GET ALL CATEGORIES
-# -----------------------------------
-@pytest.mark.django_db
-def test_get_all_categories(api_client, seeded_data):
-    res = api_client.get("/api/categories/")
-
->>>>>>> f41cf44 (WEEK-5 initial work)
     assert res.status_code == 200
->>>>>>> c29911f (WEEK-5 initial work)
     assert isinstance(res.data, list)
     assert len(res.data) > 0
 
-<<<<<<< HEAD
 @pytest.mark.django_db
 def test_get_category_invalid_id_format(api_client):
     """Test fetching a category with invalid ID format."""
@@ -143,54 +103,15 @@ def test_update_category(api_client):
     """Test successful category update."""
     create_res = api_client.post("/api/categories/", {"title": "Old"}, format="json")
     category_id = create_res.data["id"]
-=======
-
-
-# -----------------------------------
-# GET CATEGORY BY ID
-# -----------------------------------
-@pytest.mark.django_db
-def test_get_category_by_id(api_client):
-    create_res = api_client.post("/api/categories/", {"title": "Books"}, format="json")
-    category_id = create_res.data["id"]
-
-    get_res = api_client.get(f"/api/categories/{category_id}/")
-
-    assert get_res.status_code == 200
-    assert get_res.data["title"] == "Books"
-
-#GET CATEGORY NOT FOUND 
-@pytest.mark.django_db
-def test_get_category_not_found(api_client):
-    fake_id = "64b8f8f8f8f8f8f8f8f8f8f8"
-
-    res = api_client.get(f"/api/categories/{fake_id}/")
-
-    assert res.status_code == 404
-    assert "error" in res.data
-# -----------------------------------
-# UPDATE CATEGORY
-# -----------------------------------
-@pytest.mark.django_db
-def test_update_category(api_client):
-    create_res = api_client.post("/api/categories/", {"title": "Old"}, format="json")
-    category_id = create_res.data["id"]
-
->>>>>>> f41cf44 (WEEK-5 initial work)
     update_res = api_client.patch(
         f"/api/categories/{category_id}/",
         {"title": "New"},
         format="json"
     )
-<<<<<<< HEAD
-=======
-
->>>>>>> f41cf44 (WEEK-5 initial work)
     assert update_res.status_code == 200
     assert update_res.data["message"] == "Updated successfully"
     assert update_res.data["category"]["title"] == "New"
 
-<<<<<<< HEAD
 @pytest.mark.django_db
 def test_update_category_invalid_id_format(api_client):
     """Test updating with an invalid category ID format."""
@@ -248,31 +169,10 @@ def test_update_category_not_found(api_client):
 @pytest.mark.django_db
 def test_delete_category_success(api_client):
     """Test successful category deletion."""
-=======
-#UPDATE CATEGORY NOT FOUND
-@pytest.mark.django_db
-def test_update_category_not_found(api_client):
-    fake_id = "64b8f8f8f8f8f8f8f8f8f8f8"
-
-    res = api_client.patch(
-        f"/api/categories/{fake_id}/",
-        {"title": "New"},
-        format="json"
-    )
-
-    assert res.status_code == 404
-    assert "error" in res.data
-# -----------------------------------
-# DELETE CATEGORY (SUCCESS)
-# -----------------------------------
-@pytest.mark.django_db
-def test_delete_category_success(api_client):
->>>>>>> f41cf44 (WEEK-5 initial work)
     create_res = api_client.post("/api/categories/", {"title": "Temp"}, format="json")
     category_id = create_res.data["id"]
 
     delete_res = api_client.delete(f"/api/categories/{category_id}/")
-<<<<<<< HEAD
     assert delete_res.status_code == 200
     assert delete_res.data["status"] == "success"
 
@@ -316,65 +216,14 @@ def test_delete_category_in_use(api_client):
             "warehouse_quantity": 10,
             "category_id": category_id,
             "is_perishable": False
-=======
-
-    # 204 → no content allowed
-    assert delete_res.status_code == 200
-    assert delete_res.data["status"]=="success"
-
-
-# -----------------------------------
-# DELETE CATEGORY NOT FOUND
-# -----------------------------------
-# @pytest.mark.django_db
-def test_delete_category_not_found(api_client):
-    fake_id = "64b8f8f8f8f8f8f8f8f8f8f8"  # valid format, non-existent
-
-    res = api_client.delete(f"/api/categories/{fake_id}/")
-
-    assert res.status_code == 404
-    assert "error" in res.data
-
-
-# -----------------------------------
-# DELETE CATEGORY IN USE 
-# -----------------------------------
-# @pytest.mark.django_db
-def test_delete_category_in_use(api_client):
-    # 1. Create category
-    create_res = api_client.post(
-        "/api/categories/",
-        {"title": "Electronics"},
-        format="json"
-    )
-    category_id = create_res.data["id"]
-
-    # 2. Create product linked to this category
-    product_res=api_client.post(
-        "/api/products/",
-        {
-            "name": "Phone",
-        "brand": "Apple",
-        "selling_price": 500,
-        "warehouse_quantity": 10,
-        "category_id": category_id,
-        "is_perishable": False
->>>>>>> f41cf44 (WEEK-5 initial work)
         },
         format="json"
     )
 
-<<<<<<< HEAD
-=======
-    print(product_res.status_code)
-    print(product_res.data)
-    # 3. Verify product is actually linked 
->>>>>>> f41cf44 (WEEK-5 initial work)
     res = api_client.get(f"/api/products/category/{category_id}/")
     assert res.status_code == 200
     assert len(res.data) == 1
 
-<<<<<<< HEAD
     delete_res = api_client.delete(f"/api/categories/{category_id}/")
     assert delete_res.status_code == 400
     assert "error" in delete_res.data
@@ -403,11 +252,3 @@ def test_category_random_string_id(api_client):
     """Test fetching a category with a malformed string ID."""
     res = api_client.get("/api/categories/abcxyz/")
     assert res.status_code in [400, 404]
-=======
-    # 4. Attempt delete (should fail)
-    delete_res = api_client.delete(f"/api/categories/{category_id}/")
-
-    assert delete_res.status_code == 400
-    assert "error" in delete_res.data
-    assert "Cannot delete category" in delete_res.data["error"]
->>>>>>> f41cf44 (WEEK-5 initial work)
