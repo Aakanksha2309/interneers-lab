@@ -209,6 +209,7 @@ class ProductService:
         valid_payloads = []
         errors_list = []
         batch_time = datetime.now(UTC)
+        seen_in_this_csv = set()
 
         # Process rows
         for index, row in enumerate(reader):
@@ -225,11 +226,28 @@ class ProductService:
             
             if serializer.is_valid():
                 data = dict(serializer.validated_data)
+                name_key = str(data.get('name', '')).strip().lower()
+                brand_key = str(data.get('brand', '')).strip().lower()
+                unique_key = (name_key, brand_key)
+                if unique_key in seen_in_this_csv:
+                    errors_list.append({
+                        "row": row_num, 
+                        "error": f"Duplicate entry within this CSV: {data['name']} ({data['brand']})"
+                    })
+                    continue
+                existing = self.repository.get_by_name_and_brand(data['name'], data['brand'])
+                if existing:
+                    errors_list.append({
+                        "row": row_num, 
+                        "error": f"Duplicate found: {data['name']} by {data['brand']} already exists."
+                    })
+                    continue
                 try:
                     data = self._merge_category_into_payload(data)
                     data['created_at'] = batch_time
                     data['updated_at'] = batch_time
                     valid_payloads.append(data)
+                    seen_in_this_csv.add(unique_key)
                 except CategoryNotFoundError as e:
                     errors_list.append({"row": row_num, "error": str(e)})
             else:

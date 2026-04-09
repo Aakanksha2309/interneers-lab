@@ -383,11 +383,14 @@ def test_bulk_file_validation(mock_serializer, service, file_name, should_raise)
         with pytest.raises(BulkValidationError):
             service.bulk_create_from_csv(file)
     else:
-        file.read.return_value = b"name,price\nproduct1,100"
+        file.read.return_value = b"name,brand,price\nproduct1,Brand1,100"
+        # Configure the Mock Serializer to mimic a successful validation cycle
         mock_instance = MagicMock()
         mock_instance.is_valid.return_value = True
-        mock_instance.validated_data = {"name": "product1", "price": 100}
+        mock_instance.validated_data = {"name": "product1","brand": "Brand1", "price": 100}
         mock_serializer.return_value = mock_instance
+        # DB returns None i.e. product doesn't exists 
+        service.repository.get_by_name_and_brand.return_value = None
         service._merge_category_into_payload = MagicMock(side_effect=lambda x: x)
         service.repository.bulk_create = MagicMock()
         result = service.bulk_create_from_csv(file)
@@ -395,6 +398,48 @@ def test_bulk_file_validation(mock_serializer, service, file_name, should_raise)
         assert result["success"] == 1
         assert result["failed"] == 0
         service.repository.bulk_create.assert_called_once()
+
+
+@patch("django_app.products.services.product_service.ProductSerializer")
+@pytest.mark.parametrize(
+    "csv_content, repo_return, expected_success, expected_failed",
+    [
+        ("name,brand\nProductA,BrandA", None, 1, 0),
+        ("name,brand\nProductA,BrandA", MagicMock(), 0, 1),
+        ("name,brand\nProductA,BrandA\nproducta,branda", None, 1, 1),
+    ]
+)
+def test_bulk_create_logic(mock_serializer_class, service, csv_content, repo_return, expected_success, expected_failed):
+    """
+    Tests the follwoing data scenarios:
+    
+    1. New Products: Validates that unique rows are successfully prepared for creation.
+    2. Database Conflicts: Ensures rows that already exist in the database are marked as failures.
+    3. CSV Duplication: Ensures that if the same product appears twice in one file, 
+       only the first is processed and the second is flagged as a duplicate.
+    """
+    file = MagicMock()
+    file.name = "data.csv"
+    file.read.return_value = csv_content.encode('utf-8')
+
+   #Dynamic Serializer Mocking
+    def side_effect(data=None, **kwargs):
+        mock_inst = MagicMock()
+        mock_inst.is_valid.return_value = True
+        mock_inst.validated_data = data  # This is the key!
+        return mock_inst
+
+    mock_serializer_class.side_effect = side_effect
+
+    #Mock Repository
+    service.repository.get_by_name_and_brand = MagicMock(return_value=repo_return)
+    service.repository.bulk_create = MagicMock()
+    service._merge_category_into_payload = MagicMock(side_effect=lambda x: x)
+
+    result = service.bulk_create_from_csv(file)
+
+    assert result["success"] == expected_success
+    assert result["failed"] == expected_failed
 
 # --- GET CATALOG WITHOUT FILTER ---
 

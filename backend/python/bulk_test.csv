@@ -4,3 +4,8 @@ name,brand,category,warehouse_quantity,selling_price,cost_price,is_perishable,ex
 "4K Gaming Monitor","Samsung","69c271f5e6e67864187507af",25,349.50,210.00,false,,"144Hz Refresh Rate"
 "Fresh Yogurt","GreekCo","69c0681754f780845fed1782",80,5.99,2.50,true,2026-04-15T00:00:00,"Probiotic Strawberry 500g"
 "Mechanical Keyboard","Logitech","69c0681754f780845fed1781",45,129.99,80.00,false,,"RGB Backlit Brown Switches"
+"Keyboard","Logitech","69c0681754f780845fed1781",45,129.99,80.00,false,,"RGB Backlit Brown Switches"
+"KEYBOARD","Logitech","69c0681754f780845fed1781",45,129.99,80.00,false,,"RGB Backlit Brown Switches"
+"Yogurt","GreekCo","69c0681754f780845fed1780",80,5.99,2.50,true,2026-04-15T00:00:00,"Probiotic Strawberry 500g"
+"Yogurt","GreekCo","69c0681754f780845fed1780",80,5.99,2.50,true,2026-04-15T00:00:00,"Probiotic Strawberry 500g"
+

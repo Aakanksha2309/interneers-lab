@@ -18,7 +18,7 @@ class ProductRepository:
     
     # Getting a product with particular name and brand
     def get_by_name_and_brand(self,name, brand):
-        return Product.objects(name=name, brand=brand).first()
+        return Product.objects(name__iexact=name, brand__iexact=brand).first()
  
     # Handles searching and pagination
     def get_paginated(self, mongo_query, raw_query, skip, limit=10):
