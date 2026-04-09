@@ -11,9 +11,9 @@ class CategoryRepository:
         return ProductCategory.objects(id=category_id).first()
 
     #Finds a category by its title
-    def get_by_title(self, title):
-        return ProductCategory.objects(title=title).first()
-
+    def get_by_title_case_insensitive(self, title):
+        return ProductCategory.objects(title__iexact=title).first()
+        
     # Get a list of every category
     def get_all(self):
         return ProductCategory.objects()
@@ -33,7 +33,6 @@ class CategoryRepository:
             setattr(category, key, value)
         category.save()
         return category
-
     #Delete category which don't have any product under it 
     def delete(self, category_id):
         category = self.get_by_id(category_id)
