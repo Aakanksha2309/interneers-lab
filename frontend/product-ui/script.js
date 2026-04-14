@@ -16,18 +16,19 @@ const state = {
     expiry: "",
   },
 };
+// API BASE URL
+const API_BASE = "http://localhost:8001/api";
 
 // Populates category dropdown and triggers initial data load
 async function initApp() {
   try {
     // Fetch all categories from backend
-    const response = await fetch("http://localhost:8001/api/categories/");
+    const response = await fetch(`${API_BASE}/categories/`);
     const categories = await response.json();
 
     // Store categories globally
     state.categories = categories;
     const titlesArray = categories.map((cat) => cat.title);
-    console.log("Category Titles Array:", titlesArray);
 
     // Populate dropdown dynamically
     const select = document.getElementById("category-select");
@@ -52,7 +53,6 @@ async function fetchProducts() {
 
   params.append("page", state.currentPage);
   params.append("limit", 10);
-  console.log(params.page);
 
   // Add filters if user has provided values
   if (state.filters.search) params.append("search", state.filters.search);
@@ -65,11 +65,10 @@ async function fetchProducts() {
   try {
     // Call backend API with filters applied
     const response = await fetch(
-      `http://localhost:8001/api/products/?${params.toString()}`
+      `${API_BASE}/products/?${params.toString()}`
     );
     const result = await response.json();
 
-    console.log("--- New Product Data Received ---");
     console.table(result.data);
 
     document.getElementById("product-count").textContent =
@@ -160,9 +159,6 @@ document.getElementById("apply-filters").addEventListener("click", () => {
   state.filters.search = document.getElementById("search-input").value;
   const selectedCategoryId = document.getElementById("category-select").value;
   state.filters.category = selectedCategoryId;
-
-  console.log("Filtering by Category ID:", state.filters.category);
-
   state.filters.min_price = document.getElementById("min-price").value;
   state.filters.max_price = document.getElementById("max-price").value;
   state.filters.low_stock = document.getElementById("low-stock-toggle").checked;
@@ -185,10 +181,28 @@ document.getElementById("prev-page").addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 });
-
+function resetFiltersUI() {
+  document.getElementById("search-input").value = "";
+  document.getElementById("category-select").value = "";
+  document.getElementById("min-price").value = "";
+  document.getElementById("max-price").value = "";
+  document.getElementById("low-stock-toggle").checked = false;
+  document.getElementById("expiry-filter").value = "";
+}
 // Reset filters → reload entire page
 document.getElementById("reset-filters").addEventListener("click", () => {
-  window.location.reload();
+  state.currentPage = 1;
+  state.filters = {
+    search: "",
+    category: "",
+    min_price: "",
+    max_price: "",
+    low_stock: false,
+    expiry: "",
+  };
+  resetFiltersUI();
+
+  fetchProducts();
 });
 
 // Start the app
