@@ -81,7 +81,7 @@ class ProductView(APIView):
             product = self.service.create_product(serializer.validated_data)
         except CategoryNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
-        except ValueError as e:
+        except BusinessValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(
             {"id": str(product.id), "status": "Created"},

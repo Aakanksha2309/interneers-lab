@@ -6,7 +6,7 @@ category assignments, and CSV bulk uploads.
 from ..repositories.product_repository import ProductRepository
 from ..exceptions import ProductNotFoundError, BusinessValidationError,BulkValidationError,CategoryNotFoundError
 from ..repositories.product_category_repository import CategoryRepository
-import io,csv,math,datetime
+import io,csv,math
 from bson import ObjectId
 from datetime import datetime,UTC
 from ..serializers.product_serializer import ProductSerializer
@@ -127,7 +127,7 @@ class ProductService:
         existing = self.repository.get_by_name_and_brand(name, brand)
         if existing:
            # Product with given name and brand already exists 
-            raise ValueError(f"Conflict: {name} by {brand} is already in the system.")
+            raise BusinessValidationError(f"Conflict: {name} by {brand} is already in the system.")
         payload = self._merge_category_into_payload(data)
         return self.repository.create(payload)
     
