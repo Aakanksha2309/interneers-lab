@@ -1,3 +1,6 @@
+/*
+ * Defines the shape of Product and Category data used in the app.
+ */
 
 export interface Product {
   id: string;

@@ -1,0 +1,84 @@
+/* Main container for product inventory */
+.inventory-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+/* Header & Count Styling */
+.list-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 16px;
+}
+
+/* Title styling */
+.header-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0 0 4px 0;
+}
+
+/* Product count text */
+.product-count {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+/* Highlighted number inside count */
+.product-count span {
+  font-weight: 600;
+  color: var(--brand-secondary);
+  margin: 0 4px;
+}
+
+/* Product grid layout */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+/* Empty State Styling */
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  background: var(--bg-subtle);
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-box {
+  font-size: 4rem;
+  color: var(--text-faint);
+  margin-bottom: 16px;
+}
+
+.empty-state-container h3 {
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.empty-state-container p {
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
