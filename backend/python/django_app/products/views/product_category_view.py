@@ -5,7 +5,7 @@ It connects the incoming user data to the CategoryService.
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ..exceptions import CategoryNotFoundError
+from ..exceptions import CategoryNotFoundError,BusinessValidationError
 from ..serializers.product_category_serializer import ProductCategorySerializer
 from ..services.product_category_service import CategoryService
 
@@ -26,7 +26,7 @@ class ProductCategoryAPIView(APIView):
                 {"id": str(category.id), "message": "Category created successfully"},
                 status=status.HTTP_201_CREATED
             )
-        except ValueError as e:
+        except BusinessValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
       
     # List all categories
@@ -62,7 +62,7 @@ class ProductCategoryDetailAPIView(APIView):
             }, status=status.HTTP_200_OK)
         except CategoryNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
-        except ValueError as e:
+        except BusinessValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
     # Update category
@@ -85,4 +85,7 @@ class ProductCategoryDetailAPIView(APIView):
 
         except CategoryNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except BusinessValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+      
 
