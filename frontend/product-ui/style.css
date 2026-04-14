@@ -1,6 +1,6 @@
-/*
-  Main stylesheet for the dashboard UI
-  Contains layout, product cards, filters, and pagination styles
+/* 
+    Main stylesheet for the dashboard UI
+    Contains layout, product cards, filters, and pagination styles
 */
 
 /* === Base Reset and Theme === */
@@ -20,6 +20,7 @@
   --border: #dee2e6;
   --card-img-size: 80px;
   --card-stats-width: 150px;
+  --radius:8px;
 }
 
 /* === Page Background === */
@@ -72,7 +73,7 @@ select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 0.75rem;
 }
 
