@@ -85,11 +85,7 @@ class ProductCategoryDetailAPIView(APIView):
 
         except CategoryNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
-<<<<<<< HEAD
         except BusinessValidationError as e:
-=======
-        except ValueError as e:
->>>>>>> 5155439 (test: add unit,integration suites and regression script)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
       
 

@@ -18,11 +18,7 @@ class CategoryService:
             title = data.get("title", "").strip()
             existing = self.repository.get_by_title_case_insensitive(title)
             if existing:
-<<<<<<< HEAD
                 raise BusinessValidationError(f"Category '{title}' already exists.")
-=======
-                raise ValueError(f"Category '{title}' already exists.")
->>>>>>> 5155439 (test: add unit,integration suites and regression script)
             return self.repository.create(data)
         except NotUniqueError:
             raise BusinessValidationError(f"Category '{data.get('title')}' already exists.")
@@ -52,11 +48,7 @@ class CategoryService:
             title = title.strip()
             existing = self.repository.get_by_title_case_insensitive(title)
             if existing and str(existing.id) != category_id:
-<<<<<<< HEAD
                 raise BusinessValidationError(f"Category '{title}' already exists.")
-=======
-                raise ValueError(f"Category '{title}' already exists.")
->>>>>>> 5155439 (test: add unit,integration suites and regression script)
             payload["title"] = title
 
         updated = self.repository.update(category_id, payload)
