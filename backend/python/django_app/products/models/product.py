@@ -5,6 +5,8 @@ It tracks the name,brand,warehouse quantity and other details for every product
 from datetime import datetime, timezone
 from mongoengine import Document,IntField,FloatField,StringField,DateTimeField,signals,DecimalField,ValidationError,ReferenceField,BooleanField,DENY
 from .product_category import ProductCategory
+
+
 class Product(Document):
     # Basic item details
     name = StringField(required=True, max_length=200)

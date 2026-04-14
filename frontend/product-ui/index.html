@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <!-- Main dashboard layout wrapper -->
+  <div class="dashboard-wrapper">
+    <!-- Sidebar: contains brand + filters -->
+    <aside class="sidebar">
+      <!-- App brand -->
+      <div class="brand">
+        <h1>Inv<span>Track</span></h1>
+      </div>
+      <!-- Filter panel for product search and filtering -->
+      <div class="filter-container">
+        <h3>Filters</h3>
+        <!-- Search filter -->
+        <div class="filter-group">
+          <label for="search-input">Search Products</label>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Type name or brand..."
+          />
+        </div>
+        <!-- Category filter dropdown -->
+        <div class="filter-group">
+          <label for="category-select">Category</label>
+          <select id="category-select">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <!-- Price range filter -->
+        <div class="filter-group">
+          <label>Price Range (₹)</label>
+          <div class="dual-input">
+            <input type="number" id="min-price" placeholder="Min" />
+            <input type="number" id="max-price" placeholder="Max" />
+          </div>
+        </div>
+        <!-- Low stock filter toggle -->
+        <div class="filter-group checkbox">
+          <input type="checkbox" id="low-stock-toggle" />
+          <label for="low-stock-toggle">Show Low Stock Only</label>
+        </div>
+        <!-- Expiry date filter -->
+        <div class="filter-group">
+          <label for="expiry-filter">Expires Before</label>
+          <input type="date" id="expiry-filter" />
+        </div>
+        <!-- Filter action buttons -->
+        <button id="apply-filters" class="btn-primary">Apply Filters</button>
+        <button id="reset-filters" class="btn-secondary">Clear All</button>
+      </div>
+    </aside>
+
+    <!-- Main content area -->
+    <main class="content-area">
+      <!-- Top bar with heading and stats -->
+      <header class="top-bar">
+        <div class="stats">
+          <h2>Inventory Overview</h2>
+          <p id="product-count">Connecting to server...</p>
+        </div>
+      </header>
+      <!-- Product list section (API data renders here) -->
+      <section id="product-list" class="product-feed">
+        <div class="loading-state">
+          <p>Fetching data from API...</p>
+        </div>
+      </section>
+      <!-- Pagination controls for product navigation -->
+      <div class="pagination-controls">
+        <button id="prev-page" class="btn-secondary" disabled>
+          Previous
+        </button>
+        <span id="page-info">Page 1</span>
+        <button id="next-page" class="btn-secondary">Next</button>
+      </div>
+    </main>
+  </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
