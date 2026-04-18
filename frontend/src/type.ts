@@ -18,6 +18,17 @@ export interface Product {
   updated_at: string;
 }
 
+export interface PaginatedResponse {
+  status: string;
+  data: Product[];
+  pagination: {
+    total_items: number;
+    total_pages: number;
+    current_page: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+}
 
 export interface Category {
   id: string;

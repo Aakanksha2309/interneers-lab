@@ -4,15 +4,27 @@
  */
 import React from "react";
 import ProductCard from "../ProductCard/Product";
-import { Product } from "../../type";
+import { Product, Category } from "../../type";
 import "./ProductList.css";
 import { FaBoxOpen } from "react-icons/fa";
 
 interface ProductListProps {
   products: Product[];
+  categories: Category[];
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  onDeleteSuccess: () => void;
 }
 
-const ProductList = ({ products }: ProductListProps) => {
+const ProductList = ({
+  products,
+  categories,
+  currentPage,
+  totalPages,
+  onPageChange,
+  onDeleteSuccess,
+}: ProductListProps) => {
   return (
     <main className="inventory-container">
       <header className="list-header">
@@ -29,7 +41,12 @@ const ProductList = ({ products }: ProductListProps) => {
         <div className="product-grid">
           {/* render each product card */}
           {products.map((product) => (
-            <ProductCard key={product.id} {...product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              categories={categories}
+              onDeleteSuccess={onDeleteSuccess}
+            />
           ))}
         </div>
       ) : (
@@ -45,6 +62,25 @@ const ProductList = ({ products }: ProductListProps) => {
           </p>
         </div>
       )}
+      <div className="pagination-bar">
+        <button
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(currentPage - 1)}
+        >
+          ← Prev
+        </button>
+
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+        >
+          Next →
+        </button>
+      </div>
     </main>
   );
 };

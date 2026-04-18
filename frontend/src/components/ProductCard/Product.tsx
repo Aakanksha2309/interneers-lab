@@ -4,11 +4,19 @@
  */
 import React, { useState } from "react";
 import "./Product.css";
-import { MOCK_CATEGORIES } from "../../mockData";
-import { Product as ProductType } from "../../type";
+import { Product as ProductType, Category } from "../../type";
 import ProductDetailModal from "../ProductModal/ProductDetailModal";
 
-const Product = (props: ProductType) => {
+interface ProductCardProps {
+  product: ProductType;
+  categories: Category[]; // We pass the real categories list here
+  onDeleteSuccess: () => void;
+}
+const Product = ({
+  product,
+  categories = [],
+  onDeleteSuccess,
+}: ProductCardProps) => {
   // controls modal open/close
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -20,11 +28,13 @@ const Product = (props: ProductType) => {
     selling_price,
     description,
     brand,
-  } = props;
+  } = product;
 
   // find category name from id
-  const categoryObject = MOCK_CATEGORIES.find((cat) => cat.id === category_id);
-  const categoryName = categoryObject ? categoryObject.title : "Unknown";
+  const categoryObject = (categories || []).find(
+    (cat) => String(cat.id) === String(category_id),
+  );
+  const categoryName = categoryObject ? categoryObject.title : "Uncategorized";
 
   // stock status checks
   const isLowStock =
@@ -38,13 +48,11 @@ const Product = (props: ProductType) => {
     <>
       <div className="product-card">
         <div className="image-container">
-          {/* gray out the image if the item is not in stock */}
           <img
             src={imageUrl}
             alt={name}
             className={outOfStock ? "grayscale-img" : ""}
           />
-          {/* stock label */}
           <span
             className={`stock-badge ${
               outOfStock ? "out-of-stock" : isLowStock ? "low" : "in-stock"
@@ -86,8 +94,13 @@ const Product = (props: ProductType) => {
       {/* Conditionally render the modal when 'View Details' is clicked */}
       {isModalOpen && (
         <ProductDetailModal
-          product={props}
+          product={product}
+          categories={categories}
           onClose={() => setIsModalOpen(false)}
+          onDeleteSuccess={() => {
+            setIsModalOpen(false);
+            onDeleteSuccess();
+          }}
         />
       )}
     </>

@@ -214,7 +214,7 @@
 }
 
 /* primary action button */
-.btn-primary {
+.card-actions .btn-primary {
   flex: 1;
   background: #0f172a;
   color: white;
@@ -227,7 +227,7 @@
   transition: background 0.2s;
 }
 
-.btn-primary:hover {
+.card-actions .btn-primary:hover {
   background: var(--text-secondary);
 }
 
