@@ -1,0 +1,573 @@
+/* --- Global Page Setup --- */
+.category-detail-view {
+  min-height: 100vh;
+  background-color: #f8fafc; /* Light gray "floor" to make white cards pop */
+  padding: 32px 48px;
+  font-family: "Inter", sans-serif;
+  color: #1e293b;
+}
+.category-super-label {
+  color: #6366f1; /* Using a vibrant Indigo for a modern feel */
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+/* --- Breadcrumb Path --- */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+.bc-link {
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.bc-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.bc-sep {
+  color: #cbd5e1;
+  font-size: 10px;
+}
+.bc-current {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* --- Category Info Card (Top Section) --- */
+.cat-header-compact {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cat-header-main {
+  display: flex;
+  gap: 24px;
+  max-width: 80%;
+}
+
+.cat-icon-frame {
+  width: 64px;
+  height: 64px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+/* --- Typography & Description Heading --- */
+.cat-title {
+  font-size: 38px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 0;
+  padding-left: 0;
+}
+
+.cat-desc-container {
+  margin-bottom: 16px;
+  padding-left: 20px;
+  border-left: 3px solid #3b82f6; /* Blue accent to define description */
+}
+
+.desc-heading {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.meta-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.meta-value {
+  font-size: 15px;
+  color: #64748b;
+  font-weight: 600;
+}
+.meta-dot {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
+}
+.cat-desc {
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 800px;
+}
+
+/* --- Metadata & Status Pills --- */
+.cat-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  margin-top: 16px;
+  padding: 8px 0;
+}
+
+.cat-stats-pills {
+  display: flex;
+  gap: 10px;
+}
+
+.pill-blue,
+.pill-warn,
+.pill-green {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle depth */
+}
+.pill-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.pill-warn {
+  background: #fffbeb;
+  color: #b45309;
+}
+.pill-green {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+/* --- Action Buttons & FIXED Dropdown --- */
+.cat-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu-container {
+  position: relative; /* REQUIRED anchor for dropdown */
+}
+
+.btn-icon {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  min-width: 160px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-menu button {
+  padding: 12px 16px;
+  font-size: 14px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background: #f8fafc;
+}
+
+/* --- Product Inventory Workspace (Bottom Card) --- */
+.inventory-workspace {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.workspace-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 20px;
+}
+
+.workspace-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.super-label-icon {
+  font-size: 2.4rem; /* Slightly larger than the text for visual balance */
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center; /* This vertically centers the icon with the text */
+  gap: 12px;
+  margin-top: 4px; /* Small gap from super-label */
+  margin-bottom: 8px;
+}
+/* Scope all styles to the Category Detail container to prevent global overlap */
+
+.category-detail-view .edit-title-input {
+  font-size: 28px; /* Matches your large h1 scale */
+  font-weight: 700;
+  border: 2px solid #3b82f6; /* Professional blue border when active */
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 16px;
+  width: 100%;
+  color: #0f172a;
+  outline: none;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); /* Subtle blue glow */
+  transition: border-color 0.2s ease;
+}
+
+.category-detail-view .edit-desc-input {
+  width: 100%;
+  min-height: 180px; /* more breathing */
+  max-height: 500px;
+
+  /* Typography */
+  font-size: 16px;
+  line-height: 1.7; /* more readable */
+  color: #334155;
+
+  /* Visuals - SOFTER */
+  background: #f8fafc; /* subtle grey instead of white */
+  border: 1px solid transparent; /* remove harsh border */
+  border-radius: 12px;
+
+  padding: 18px 20px;
+
+  /* UX */
+  outline: none;
+  resize: vertical;
+  transition: all 0.2s ease;
+
+  box-shadow: none; /* remove inset cramped feel */
+}
+
+.category-detail-view .edit-desc-input:focus {
+  border-color: #3b82f6;
+  border-width: 1px;
+  box-shadow:
+    0 0 0 4px rgba(59, 130, 246, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Optional: Make the scrollbar cleaner for Chrome/Safari */
+.category-detail-view .edit-desc-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-detail-view .edit-desc-input::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+/* Action Buttons specific to this view's inline edit */
+.category-detail-view .edit-actions-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-bottom: 10px;
+}
+
+.category-detail-view .btn-save-inline {
+  background: #16a34a; /* Success green */
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+}
+
+.category-detail-view .btn-save-inline:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(22, 163, 74, 0.3);
+}
+
+.category-detail-view .btn-cancel-inline {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-detail-view .btn-cancel-inline:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* Ensure the labels like "Category Description" stay visible and clean during edit */
+.category-detail-view .desc-heading {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.bulk-action-bar {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  border-radius: 14px;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+  animation: slideUp 0.2s ease-out;
+}
+
+.bulk-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.bulk-category-select {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  min-width: 180px;
+}
+
+.bulk-move-btn {
+  background: #2563eb;
+  border: none;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.bulk-move-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bulk-cancel-btn {
+  background: none;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.bulk-cancel-btn:hover {
+  border-color: #94a3b8;
+  color: #fff;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.btn-move-mode {
+background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-move-mode.active {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.btn-move-mode:hover {
+  background: #f1f5f9;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 200;
+  animation: slideUp 0.2s ease-out;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.toast-success {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #86efac;
+}
+
+.toast-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.bulk-dropdown-wrapper {
+  position: relative;
+}
+
+.bulk-dropdown-trigger {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bulk-dropdown-trigger:hover {
+  background: #3d5166;
+}
+
+.bulk-dropdown-arrow {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.bulk-dropdown-list {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  min-width: 100%;
+  z-index: 200;
+  overflow: hidden;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.bulk-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.bulk-dropdown-item:hover {
+  background: #334155;
+}

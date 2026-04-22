@@ -7,6 +7,8 @@ import ProductCard from "../ProductCard/Product";
 import { Product, Category } from "../../type";
 import "./ProductList.css";
 import { FaBoxOpen } from "react-icons/fa";
+import { FiPlus } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface ProductListProps {
   products: Product[];
@@ -15,6 +17,8 @@ interface ProductListProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   onDeleteSuccess: () => void;
+  selectedIds?: string[];
+  onToggleSelect?: (id: string) => void;
 }
 
 const ProductList = ({
@@ -24,16 +28,28 @@ const ProductList = ({
   totalPages,
   onPageChange,
   onDeleteSuccess,
+  selectedIds,
+  onToggleSelect,
 }: ProductListProps) => {
+  const navigate = useNavigate();
+
   return (
     <main className="inventory-container">
       <header className="list-header">
         <div className="header-content">
-          <h2>Product Inventory</h2>
-          {/* total product count */}
-          <p className="product-count">
-            Showing<span>{products.length}</span>items
-          </p>
+          <div className="title-section">
+            <h2>Product Inventory</h2>
+            {/* total product count */}
+            <p className="product-count">
+              Showing<span>{products.length}</span>items
+            </p>
+          </div>
+          <button
+            className="add-button"
+            onClick={() => navigate("/add-product")}
+          >
+            <FiPlus /> Add Product
+          </button>
         </div>
       </header>
 
@@ -46,6 +62,8 @@ const ProductList = ({
               product={product}
               categories={categories}
               onDeleteSuccess={onDeleteSuccess}
+              selectedIds={selectedIds}
+              onToggleSelect={onToggleSelect}
             />
           ))}
         </div>

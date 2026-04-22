@@ -11,11 +11,15 @@ interface ProductCardProps {
   product: ProductType;
   categories: Category[]; // We pass the real categories list here
   onDeleteSuccess: () => void;
+  selectedIds?: string[];
+  onToggleSelect?: (id: string) => void;
 }
 const Product = ({
   product,
   categories = [],
   onDeleteSuccess,
+  selectedIds,
+  onToggleSelect,
 }: ProductCardProps) => {
   // controls modal open/close
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,6 +52,16 @@ const Product = ({
     <>
       <div className="product-card">
         <div className="image-container">
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              className="product-select-checkbox"
+              checked={selectedIds?.includes(String(product.id)) ?? false}
+              onChange={() => onToggleSelect(String(product.id))}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+
           <img
             src={imageUrl}
             alt={name}

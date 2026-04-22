@@ -1,0 +1,281 @@
+/* --- Main Layout Container --- */
+.manage-categories-view {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* CRITICAL FIX: 
+     Removed padding: 0 50px here because it was clashing with the 
+     header's margin: 0 50px, making the tiles narrower than the header. 
+  */
+.category-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0px 0px 50px 0px;
+}
+
+/* --- The Alignment Engine --- */
+/* Both elements now share identical width, padding, and base alignment logic */
+.category-header-bar,
+.category-tile {
+  display: grid;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 32px;
+  margin: 0 50px;
+  box-sizing: border-box;
+}
+
+/* Header Grid: Exact 5-column split */
+.category-header-bar {
+  grid-template-columns: 2.2fr 2fr 1fr 1.2fr 180px;
+  background:rgb(30, 41, 59);
+  color: #f8fafc;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Tile Grid: 4-column split to accommodate the .tsx 'stats-group' div */
+.category-tile {
+  grid-template-columns: 2.2fr 2fr 2.3fr 180px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+  min-height: 100px;
+}
+
+/* Sub-grid for the stats-group to align Inventory/Value with Header items 3 and 4 */
+.stats-group {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr; /* Perfectly matches header cols 3 and 4 */
+  gap: 20px;
+  align-items: center;
+}
+
+.category-tile:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* --- Typography & Header Labels --- */
+.header-item {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.header-actions {
+  text-align: right;
+  padding-right: 20px;
+}
+
+/* --- Column 1: Info (Title & Icon) --- */
+.main-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tile-icon {
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 8px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.tile-text h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tile-dates-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.tile-date {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-weight:500;
+}
+
+/* --- Column 2: Description --- */
+.description-box p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- Column 3: Inventory Pill --- */
+.item-pill {
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+  width: fit-content;
+}
+
+.pill-count {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.pill-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* --- Column 4: Value Display --- */
+.value-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.text-green {
+  color: #10b981;
+}
+
+/* --- Column 5: Actions --- */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 38px;
+}
+
+.view-btn {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 0 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  gap: 6px;
+}
+
+.view-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.tile-edit-btn {
+  width: 38px;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.tile-edit-btn:hover {
+  background: #16a34a;
+  color: white;
+}
+
+.tile-delete-btn {
+  width: 38px;
+  background: #fef2f2;
+  color: #ef4444;
+}
+.tile-delete-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* --- Page Header & Create Button --- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-info h1 {
+  margin: 0;
+  padding: 2rem 0 0.5rem 2rem;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.header-info p {
+  color: #64748b;
+  padding: 0 0 1rem 2rem;
+  margin: 0;
+}
+
+.create-cat-btn {
+  background:var(--brand-primary);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 50px;
+  transition: all 0.2s;
+  font-size:0.85rem;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-tile.status-critical {
+  border-left: 6px solid #ef4444;
+}
+
+/* Orange for Low Stock */
+.category-tile.status-warning {
+  border-left: 6px solid #f59e0b;
+}
+
+/* Green for Healthy Stock */
+.category-tile.status-healthy {
+  border-left: 6px solid #10b981;
+}
+
+.category-tile.status-none {
+    border-left:6px solid #94a3b8; /* Solid Grey indicator */
+}

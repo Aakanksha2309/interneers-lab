@@ -19,7 +19,13 @@
   color: var(--text-secondary);
   margin: 0 0 4px 0;
 }
-
+.header-content{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  margin-bottom:10px;
+}
 /* Product count text */
 .product-count {
   color: var(--text-muted);
@@ -104,6 +110,37 @@
   font-size: 0.85rem;
   color: var(--ink-60);
   font-weight: 500;
+}
+
+.add-button {
+  background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.add-button:hover {
+  background-color: var(--brand-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* Responsive layout */

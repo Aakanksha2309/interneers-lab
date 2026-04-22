@@ -26,12 +26,15 @@ const Navbar = () => {
         <Link to="/" className="nav-link">
           Dashboard
         </Link>
+        <Link to="/categories" className="nav-link">
+          Categories
+        </Link>
         <Link to="/about-us" className="nav-link">
           About Us
         </Link>
-        <Link to="/add-product" className="add-button">
+        {/* <Link to="/add-product" className="add-button">
           + Add Product
-        </Link>
+        </Link> */}
       </div>
     </header>
   );

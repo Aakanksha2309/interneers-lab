@@ -8,17 +8,25 @@ import Navbar from "./components/Navbar/Navbar";
 import ProductList from "./components/ProductList/ProductList";
 import StatsCards from "./components/StatsCard/StatsCards";
 import ProductPage from "./components/ProductPage/ProductPage";
-import { fetchInventory, fetchCategories } from "./services/api";
-import { Product, PaginatedResponse } from "type";
+import ManageCategories from "./components/ManageCategories/ManageCategories";
+import AddProduct from "./components/AddProduct/AddProduct"; // Adjust path as needed
+import {
+  fetchInventory,
+  fetchCategories,
+  fetchProductsByCategory,
+  fetchCategoryDetail,
+} from "./services/api";
+import { Product, PaginatedResponse, Category } from "./type";
+import CategoryDetail from "./components/CategoryDetail/CategoryDetail";
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const loadAllData = useCallback(async (page: number = 1) => {
     try {
@@ -35,7 +43,7 @@ function App() {
       setProducts(prodRes?.data || []);
       setTotalPages(prodRes?.pagination?.total_pages || 1);
       setCurrentPage(prodRes?.pagination?.current_page || 1);
-      setCategories(Array.isArray(catRes) ? catRes : (catRes.data ?? [])); // Store real categories from Django
+      setCategories(Array.isArray(catRes) ? catRes : []); // Store real categories from Django
       setTotalItems(prodRes?.pagination?.total_items || 0);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -51,6 +59,7 @@ function App() {
   if (loading && products.length === 0)
     return <div className="loading">Syncing with Django...</div>;
   if (error) return <div className="error">{error}</div>;
+
   return (
     <BrowserRouter>
       <div className="App">
@@ -75,11 +84,22 @@ function App() {
                 </div>
               }
             />
+
+            {/* Manage Categories page */}
+            <Route
+              path="/categories"
+              element={<ManageCategories products={products} />}
+            />
+            {/* Product Detail Page */}
             <Route
               path="/product/:id"
               element={<ProductPage categories={categories} />}
             />
-            <Route path="/add-product" element={<h1> Add New Product</h1>} />
+
+            <Route
+              path="/add-product"
+              element={<AddProduct categories={categories} />}
+            />
             <Route
               path="/about-us"
               element={
@@ -88,6 +108,10 @@ function App() {
                   <p>This system helps you manage stock with ease.</p>
                 </section>
               }
+            />
+            <Route
+              path="/category/:id"
+              element={<CategoryDetail categories={categories} />}
             />
           </Routes>
         </main>
