@@ -14,20 +14,15 @@ class ProductSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=1000, required=False,allow_blank=True)
     category_id = serializers.CharField(write_only=True,required=False)
     brand = serializers.CharField(required=True)
-    # Makes category_id optional during a partial update (PATCH)
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     if kwargs.get("partial"):
-    #         self.fields["category_id"].required = False
    #inventory tracking fields
     warehouse_quantity = serializers.IntegerField(min_value=0)
-    low_stock_threshold = serializers.IntegerField(required=False, default=10)
+    low_stock_threshold = serializers.IntegerField(min_value=1,required=False, default=10)
 
     # perishable
     is_perishable = serializers.BooleanField(default=False)
-    expiry_date = serializers.DateTimeField(required=False, allow_null=True)
-    cost_price = serializers.DecimalField(max_digits=10, decimal_places=2,required=False)
-    selling_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    expiry_date = serializers.DateTimeField(required=False)
+    cost_price = serializers.DecimalField(min_value=0,max_digits=10, decimal_places=2,required=False)
+    selling_price = serializers.DecimalField(min_value=0,max_digits=10, decimal_places=2)
 
     #audit fields
     created_at = serializers.DateTimeField(read_only=True)
@@ -39,6 +34,7 @@ class ProductSerializer(serializers.Serializer):
         if instance is not None and getattr(instance, "category", None):
             data["category_id"] = str(instance.category.id)
         return data
+        
     #Field-level Validation :- checks if product has a brand
     def validate_brand(self, value):
         brand_name = value.strip()
