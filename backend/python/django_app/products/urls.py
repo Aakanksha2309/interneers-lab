@@ -20,6 +20,7 @@ urlpatterns=[
     path('products/bulk-upload/',ProductBulkUploadView.as_view(),name='product-bulk-upload'),
 
     # Product-Category Relationships
+    path('products/category/bulk-move/', ProductCategoryView.as_view(), name='product-category-bulk-move'),
     path('products/<str:product_id>/',ProductDetailView.as_view(),name="product_detail"),
     path('products/category/<str:category_id>/',ProductCategoryView.as_view(),name='products-by-category'),
     path('products/category/<str:category_id>/<str:product_id>/',ProductCategoryView.as_view(),name='product-category-operations'),

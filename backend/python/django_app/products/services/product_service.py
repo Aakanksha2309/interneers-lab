@@ -166,16 +166,41 @@ class ProductService:
         return self.repository.get_products_by_category_id(category.id)
 
     #Assign category to a product
-    def add_product_to_category(self, category_id, product_id):
-        product = self.get_product(product_id)
+    def bulk_add_products_to_category(self, product_ids,category_id):
+        if not product_ids:
+            raise BusinessValidationError("product_ids must be a non-empty list")
+
+        if not isinstance(product_ids, list):
+            raise BusinessValidationError(
+                f"product_ids must be a list, got {type(product_ids).__name__}"
+            )
+
         if not ObjectId.is_valid(category_id):
-            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
-        if product.category and str(product.category.id) == str(category_id):
-            return product
+            raise CategoryNotFoundError(f"Invalid category ID format:'{target_category_id}'")
+
         category = self.category_repository.get_by_id(category_id)
         if not category:
             raise CategoryNotFoundError("Given category not found!")
-        return self.repository.assign_category(product, category)
+        
+        updated=[]
+        errors=[]
+
+        for pid in product_ids:
+            try:
+                product = self.get_product(pid)
+                updated_product=self.repository.assign_category(product,category)
+                updated.append(updated_product)
+            except ProductNotFoundError as e:
+                errors.append({"product_id": pid, "error": str(e)})
+            except CategoryNotFoundError as e:
+                raise CategoryNotFoundError(
+                f"Target category '{target_category_id}' not found or invalid. "
+                f"Bulk move aborted. {len(updated)} products were moved before this failure."
+                )
+            except BusinessValidationError as e:
+                errors.append({"product_id": pid, "error": str(e)})
+
+        return updated, errors
 
     #Remove product from a category( assigning uncategorised category to such products )
     def remove_product_from_category(self, category_id, product_id):

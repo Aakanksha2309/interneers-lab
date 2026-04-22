@@ -150,16 +150,41 @@ class ProductCategoryView(APIView):
             return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
       
 
-    # Link a product to a category
-    def post(self,request,category_id,product_id):
+    # Link products to a category
+    def post(self,request):
+        product_ids = request.data.get("product_ids", [])
+        target_category_id = request.data.get("category_id")
+        if not product_ids or not target_category_id:
+            return Response(
+                {"error": "product_ids and category_id are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         try:
-            product=self.service.add_product_to_category(category_id,product_id)
-            serializer=ProductSerializer(product)
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            updated, errors = self.service.bulk_add_products_to_category(
+                product_ids,
+                target_category_id
+            )
+            response_data = {
+                "moved": len(updated),
+                "failed": len(errors),
+                "products": ProductSerializer(updated, many=True).data,
+            }
+            if errors:
+                response_data["errors"] = errors
+                return Response(
+                    response_data, status=status.HTTP_207_MULTI_STATUS
+                )
+            return Response(response_data, status=status.HTTP_200_OK)
+
         except CategoryNotFoundError as e:
-            return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
-        except ProductNotFoundError as e:
-            return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_404_NOT_FOUND
+            )
+        except BusinessValidationError as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
+            )
+
     
     # Unlink a product from a category
     def delete(self,request,category_id,product_id):
