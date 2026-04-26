@@ -6,13 +6,13 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { MdDelete } from "react-icons/md";
-import { Product, Category } from "../../type"; // import the type
+import { Product, Category } from "../../type";
 import "./ProductDetailModal.css";
 import { deleteProduct } from "services/api";
 import axios from "axios";
 
 interface ProductDetailModalProps {
-  product: Product; // single prop instead of listing every field
+  product: Product;
   categories: Category[];
   onClose: () => void;
   onDeleteSuccess: () => void;
@@ -24,7 +24,7 @@ const ProductDetailModal = ({
   onClose,
   onDeleteSuccess,
 }: ProductDetailModalProps): React.ReactElement => {
-  // lock background scroll when modal is open
+  // Prevent background scrolling
   useEffect(() => {
     document.body.style.overflow = "hidden";
     // restore scroll on close
@@ -32,6 +32,7 @@ const ProductDetailModal = ({
       document.body.style.overflow = "unset";
     };
   }, []);
+
   const {
     id,
     name,
@@ -46,11 +47,11 @@ const ProductDetailModal = ({
     is_perishable,
   } = product;
 
-  // get category name from id
+  // Resolve category title from provided list
   const categoryObject = categories.find((cat) => cat.id === category_id);
   const categoryName = categoryObject ? categoryObject.title : "Unknown";
 
-  // stock checks
+  // Derive stock status
   const isLowStock =
     warehouse_quantity > 0 && warehouse_quantity <= low_stock_threshold;
   const outOfStock = warehouse_quantity === 0;
@@ -59,6 +60,8 @@ const ProductDetailModal = ({
   const imageUrl = `https://loremflickr.com/400/400/${name.split(" ")[0]}`;
 
   const navigate = useNavigate();
+
+  // Close modal and navigate to specific product routes
   const handleNavigation = (mode: "view" | "edit") => {
     // 1. CRITICAL: Clean up the UI before leaving
     onClose();
@@ -68,7 +71,13 @@ const ProductDetailModal = ({
       mode === "edit" ? `/product/${id}?edit=true` : `/product/${id}`;
 
     // 3. Execute navigation
-    navigate(path);
+    navigate(path, {
+      state: {
+        from: "category",
+        categoryId: product.category_id,
+        categoryTitle: categoryName,
+      },
+    });
   };
 
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
@@ -110,6 +119,7 @@ const ProductDetailModal = ({
         <div className="modal-body">
           <div className="info-header">
             <h3 className="product-name">{name}</h3>
+
             {/* stock label */}
             <span
               className={`stock-badge ${outOfStock ? "out-of-stock" : isLowStock ? "low" : "in-stock"}`}

@@ -32,9 +32,6 @@ const Navbar = () => {
         <Link to="/about-us" className="nav-link">
           About Us
         </Link>
-        {/* <Link to="/add-product" className="add-button">
-          + Add Product
-        </Link> */}
       </div>
     </header>
   );

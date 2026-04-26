@@ -2,14 +2,15 @@
  * Displays a single product card with basic info.
  * Also handles opening a modal to show more details.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Product.css";
 import { Product as ProductType, Category } from "../../type";
 import ProductDetailModal from "../ProductModal/ProductDetailModal";
+import axios from "axios";
 
 interface ProductCardProps {
   product: ProductType;
-  categories: Category[]; // We pass the real categories list here
+  categories: Category[];
   onDeleteSuccess: () => void;
   selectedIds?: string[];
   onToggleSelect?: (id: string) => void;
@@ -46,7 +47,30 @@ const Product = ({
   const outOfStock = warehouse_quantity === 0;
 
   // adding random image based on product name
-  const imageUrl = `https://loremflickr.com/600/300/${name.split(" ")[0]}`;
+  const [imageUrl, setImageUrl] = useState(
+    `https://placehold.co/300x200?text=${encodeURIComponent(name)}`,
+  );
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const { data } = await axios.get(
+          `https://api.pexels.com/v1/search?query=${encodeURIComponent(name)}&per_page=1`,
+          {
+            headers: {
+              Authorization: process.env.REACT_APP_PEXELS_API_KEY ?? "",
+            },
+          },
+        );
+        if (data.photos?.[0]?.src?.medium) {
+          setImageUrl(data.photos[0].src.medium);
+        }
+      } catch (error) {
+        console.error("Pexels fetch failed:", error);
+      }
+    };
+    fetchImage();
+  }, [name]);
 
   return (
     <>
