@@ -1,31 +1,38 @@
-import React, { useState } from "react";
+/**
+ * AddProduct — form for creating a new product.
+ **/
+
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
-  FiArrowLeft,
   FiPackage,
-  FiSave,
   FiAlertCircle,
   FiChevronDown,
-  FiCheck,
   FiChevronRight,
-  FiLayers,
   FiHome,
 } from "react-icons/fi";
 import "./AddProduct.css";
+import { createProduct } from "../../services/api";
 
-const AddProduct = ({ categories }: { categories: any[] }) => {
+const AddProduct = ({
+  categories,
+  onSuccess,
+}: {
+  categories: any[];
+  onSuccess: () => void;
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const fromCategory = location.state?.from === "category";
-  const categoryName = location.state?.categoryName;
+  const categoryTitle = location.state?.categoryTitle;
 
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
     category_id: "",
     description: "",
-    warehouse_quantity: "" as any, // String allows empty input to remove default 0
+    warehouse_quantity: "" as any,
     low_stock_threshold: "" as any,
     is_perishable: "false",
     expiry_date: "",
@@ -36,9 +43,18 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Pre-fill category if user navigated here from a category detail page
+  useEffect(() => {
+    if (location.state?.from === "category" && location.state?.categoryId) {
+      setFormData((prev) => ({
+        ...prev,
+        category_id: String(location.state.categoryId),
+      }));
+    }
+  }, [location.state]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({}); // Reset errors before a new attempt
+    setErrors({});
     setIsSubmitting(true);
 
     try {
@@ -47,17 +63,27 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
         is_perishable: formData.is_perishable === "true",
       };
 
-      // 1. Data Sanitization: Convert numeric strings
-      dataToSubmit.warehouse_quantity =
-        dataToSubmit.warehouse_quantity === ""
-          ? 0
-          : parseInt(dataToSubmit.warehouse_quantity);
-      dataToSubmit.low_stock_threshold =
-        dataToSubmit.low_stock_threshold === ""
-          ? 0
-          : parseInt(dataToSubmit.low_stock_threshold);
+      // Data Sanitization: Convert numeric strings
+      if (formData.warehouse_quantity !== "") {
+        dataToSubmit.warehouse_quantity = parseInt(formData.warehouse_quantity);
+      } else {
+        delete dataToSubmit.warehouse_quantity;
+      }
+      if (formData.low_stock_threshold !== "") {
+        dataToSubmit.low_stock_threshold = parseInt(
+          formData.low_stock_threshold,
+        );
+      } else {
+        delete dataToSubmit.low_stock_threshold;
+      }
+      if (formData.cost_price !== "") {
+        dataToSubmit.cost_price = parseFloat(formData.cost_price);
+      } else {
+        // If user leaves it blank, remove it so the DB doesn't get an empty string or error
+        delete dataToSubmit.cost_price;
+      }
 
-      // 2. Format Fix: Handle Expiry Date formatting for Django
+      // Format Fix: Handle Expiry Date formatting
       if (dataToSubmit.is_perishable) {
         if (dataToSubmit.expiry_date) {
           dataToSubmit.expiry_date = `${dataToSubmit.expiry_date}T23:59:59`;
@@ -66,13 +92,11 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
         delete dataToSubmit.expiry_date;
       }
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/products/",
-        dataToSubmit,
-      );
+      const response = await createProduct(dataToSubmit);
 
-      if (response.status === 201 || response.status === 200) {
-        alert(`Product created successfully! ID: ${response.data.id}`);
+      if (response) {
+        if (onSuccess) onSuccess();
+        alert(`Product created successfully! ID: ${response.id}`);
         navigate("/");
       }
     } catch (err: any) {
@@ -80,7 +104,7 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
         const data = err.response.data;
         const newErrors: Record<string, string> = {};
 
-        // 1. Handle Global Errors (Like the ones in your handleSave snippet)
+        // Handle Global Errors
         if (data.non_field_errors) {
           newErrors["non_field_errors"] = Array.isArray(data.non_field_errors)
             ? data.non_field_errors[0]
@@ -89,12 +113,11 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
           newErrors["non_field_errors"] = data.error;
         }
 
-        // 2. Map every other field error dynamically
+        // Map every other field error dynamically
         Object.keys(data).forEach((key) => {
           if (key !== "non_field_errors" && key !== "error") {
             let errorMsg = Array.isArray(data[key]) ? data[key][0] : data[key];
 
-            // Your "Perfect Message" for Expiry Date
             if (
               key === "expiry_date" &&
               (errorMsg.includes("null") ||
@@ -108,13 +131,11 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
           }
         });
 
-        // 3. Fallback: If there are errors but none mapped to 'non_field_errors',
-        // and you want a global alert like your snippet:
+        // Fallback: If there are errors but none mapped to 'non_field_errors'
         if (
           Object.keys(newErrors).length > 0 &&
           !newErrors["non_field_errors"]
         ) {
-          // Optional: This mimics your logic of putting the first field error in the banner
           const firstKey = Object.keys(newErrors)[0];
           console.log(`Backend validation failed for: ${firstKey}`);
         }
@@ -136,26 +157,37 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
         <span onClick={() => navigate("/")}>
           <FiHome /> Dashboard
         </span>
-        <FiChevronRight className="separator" />
-        {location.state?.from === "category" ? (
+
+        {/* If we came from a category, show 'Categories' AND the specific 'Category Name' */}
+        {location.state?.from === "category" && (
           <>
-            <span onClick={() => navigate("/categories")}>Categories</span>
             <FiChevronRight className="separator" />
-            <span onClick={() => navigate(-1)}>
-              {location.state.categoryTitle}
+            <span
+              className="breadcrumb-link"
+              onClick={() => navigate("/categories")}
+            >
+              Categories
+            </span>
+
+            <FiChevronRight className="separator" />
+            <span className="breadcrumb-link" onClick={() => navigate(-1)}>
+              {location.state.categoryTitle || "Category Details"}
             </span>
           </>
-        ) : (
-          <span onClick={() => navigate("/inventory")}>Inventory</span>
         )}
+
         <FiChevronRight className="separator" />
         <span className="current">Create Product</span>
       </nav>
       <div className="add-product-container">
-        {/* Dynamic Breadcrumbs - Stays above the card */}
-
         {/* SINGLE UNIFIED CARD */}
         <form onSubmit={handleSubmit} className="modern-form form-card">
+          {errors.non_field_errors && (
+            <div className="form-global-error">
+              <FiAlertCircle />
+              <span>{errors.non_field_errors}</span>
+            </div>
+          )}
           {/* INTERNAL SECTION 1: BASIC DETAILS */}
           <section className="form-section">
             <div className="card-header">
@@ -219,7 +251,6 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
               </div>
             </div>
 
-            {/* VISUAL DIVIDER */}
             <div className="form-divider" />
 
             {/* INTERNAL SECTION 2: INVENTORY & PRICING */}
@@ -235,6 +266,7 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
                 <label>Warehouse Quantity</label>
                 <input
                   type="number"
+                  placeholder="0"
                   value={formData.warehouse_quantity}
                   onChange={(e) =>
                     setFormData({
@@ -256,6 +288,7 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
                 <label>Low Stock Threshold</label>
                 <input
                   type="number"
+                  placeholder="10"
                   value={formData.low_stock_threshold}
                   onChange={(e) =>
                     setFormData({
@@ -277,7 +310,7 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
                 <label>Selling Price *</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="10"
                   value={formData.selling_price}
                   onChange={(e) =>
                     setFormData({ ...formData, selling_price: e.target.value })
@@ -294,7 +327,8 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
                 <label>Cost Price</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="10"
+                  placeholder="0.00"
                   value={formData.cost_price}
                   onChange={(e) =>
                     setFormData({ ...formData, cost_price: e.target.value })
@@ -311,7 +345,7 @@ const AddProduct = ({ categories }: { categories: any[] }) => {
                 <label>Is Perishable? *</label>
                 <div className="select-wrapper">
                   <select
-                    value={formData.is_perishable.toString()} // Ensure it's a string for the select
+                    value={formData.is_perishable.toString()}
                     onChange={(e) =>
                       setFormData({
                         ...formData,

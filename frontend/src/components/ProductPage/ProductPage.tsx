@@ -1,5 +1,15 @@
+/**
+ * The primary management interface for a single product.
+ * Supports dynamic switching between an analytical "Read View"
+ * and an "Edit Form" to edit product details.
+ */
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import "./ProductPage.css";
 import { Product } from "../../type";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
@@ -17,6 +27,7 @@ interface UpdateResponse {
   product: Product;
 }
 
+// UI Fallback for missing or broken product images
 const ImagePlaceholder = () => (
   <div className="img-placeholder">
     <svg width="72" height="72" viewBox="0 0 80 80" fill="none">
@@ -41,11 +52,25 @@ const ImagePlaceholder = () => (
   </div>
 );
 
-const ProductPage = ({ categories = [] }: { categories: any[] }) => {
+const ProductPage = ({
+  categories = [],
+  onStatsRefresh,
+}: {
+  categories: any[];
+  onStatsRefresh?: () => void;
+}) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  // Navigation tracking to maintain breadcrumb
+  const [navigationSource, setNavigationSource] = useState<{
+    from?: string;
+    categoryId?: string;
+    categoryTitle?: string;
+  } | null>(null);
 
+  // ----State Management---- //
   const [isEditing, setIsEditing] = useState(
     searchParams.get("edit") === "true",
   );
@@ -55,7 +80,11 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [imgError, setImgError] = useState(false);
+  const [productImageUrl, setProductImageUrl] = useState(
+    `https://placehold.co/400x400?text=${encodeURIComponent(product?.name || "")}`,
+  );
 
+  //---Utilities---//
   const formatCurrency = (num: number) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -75,6 +104,14 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
     );
   };
 
+  // Sync state with navigation history on mount
+  useEffect(() => {
+    if (location.state) {
+      setNavigationSource(location.state as any);
+    }
+  }, []);
+
+  // gets product details and initializes form state
   useEffect(() => {
     const getPageData = async () => {
       if (!id) return;
@@ -100,10 +137,35 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
     getPageData();
   }, [id]);
 
+  // Sync view mode with URL search parameters
   useEffect(() => {
     setIsEditing(searchParams.get("edit") === "true");
   }, [searchParams]);
 
+  // Image handling
+  useEffect(() => {
+    if (!product?.name) return;
+    const fetchImage = async () => {
+      try {
+        const { data } = await axios.get(
+          `https://api.pexels.com/v1/search?query=${encodeURIComponent(product.name)}&per_page=1`,
+          {
+            headers: {
+              Authorization: process.env.REACT_APP_PEXELS_API_KEY ?? "",
+            },
+          },
+        );
+        if (data.photos?.[0]?.src?.large) {
+          setProductImageUrl(data.photos[0].src.large);
+        }
+      } catch (error) {
+        console.error("Pexels fetch failed:", error);
+      }
+    };
+    fetchImage();
+  }, [product?.name]);
+
+  //---Form Handlers---//
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -123,11 +185,11 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
 
   const handleBooleanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value === "true";
-    setFormData((prev) => ({
-      ...prev,
-      is_perishable: val,
-      expiry_date: val ? prev.expiry_date : "",
-    }));
+    setFormData((prev) => {
+      const updated = { ...prev, is_perishable: val };
+      if (!val) delete updated.expiry_date; // remove the field entirely
+      return updated;
+    });
   };
 
   const handleDelete = async () => {
@@ -140,6 +202,8 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
       return;
     try {
       await deleteProduct(id);
+      onStatsRefresh?.(); // triggers dashboard stats refresh
+      alert("Product deleted successfully!");
       navigate("/");
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.data)
@@ -153,9 +217,14 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
     setFieldErrors({});
     setGlobalError(null);
     try {
+      const cleanedData = { ...formData };
+      if (!cleanedData.is_perishable) {
+        delete cleanedData.expiry_date;
+      }
+
       const response = (await updateProduct(
         id,
-        formData as any,
+        cleanedData as any,
       )) as unknown as UpdateResponse;
       const newProductData = response.product;
       if (newProductData) {
@@ -178,8 +247,6 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
         } else if (data.error) {
           setGlobalError(data.error);
         } else {
-          // Catch-all: If it's a field error we don't recognize,
-          // put the first one in the global banner so the user isn't confused.
           const firstKey = Object.keys(data)[0];
           if (firstKey) {
             setGlobalError(
@@ -236,27 +303,33 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
   return (
     <div className="product-page-wrapper">
       <div className="product-page-container">
-        {/* PAGE HEADER */}
-        <header className="page-header">
-          <h1 className="page-heading">Product Details</h1>
-          {/* <div className="page-header-actions">
-            {isEditing ? (
-              <>
-                <button className="btn-primary" onClick={handleSave}>Save Changes</button>
-                <button className="btn-secondary" onClick={handleCancel}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <button className="btn-primary" onClick={handleEnterEditMode}>
-                  <FiEdit2 size={13} /> Edit Product
-                </button>
-                <button className="btn-danger" onClick={handleDelete}>
-                  <FiTrash2 size={13} /> Delete
-                </button>
-              </>
-            )}
-          </div> */}
-        </header>
+        {/* Dynamic Breadcrumb Navigation */}
+        <nav className="breadcrumb">
+          <span className="bc-link" onClick={() => navigate("/")}>
+            Dashboard
+          </span>
+          <span className="bc-sep"> › </span>
+
+          {navigationSource?.from === "category" && (
+            <>
+              <span className="bc-link" onClick={() => navigate("/categories")}>
+                Categories
+              </span>
+              <span className="bc-sep"> › </span>
+              <span
+                className="bc-link"
+                onClick={() =>
+                  navigate(`/category/${navigationSource.categoryId}`)
+                }
+              >
+                {navigationSource.categoryTitle}
+              </span>
+              <span className="bc-sep"> › </span>
+            </>
+          )}
+
+          <span className="bc-current">{product?.name}</span>
+        </nav>
 
         {/* CONTENT GRID */}
         <div className="product-content-grid">
@@ -267,7 +340,7 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
                 <ImagePlaceholder />
               ) : (
                 <img
-                  src={`https://loremflickr.com/600/600/${product?.name?.split(" ")[0] || "product"}`}
+                  src={productImageUrl}
                   alt={product?.name || "Product image"}
                   onError={() => setImgError(true)}
                 />
@@ -276,12 +349,6 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
 
             {/* SIDEBAR META CARD */}
             <div className="status-info-card">
-              <div className="info-row">
-                <span className="lbl">SKU</span>
-                <span className="val">
-                  {product.id || product.id.substring(0, 8).toUpperCase()}
-                </span>
-              </div>
               <div className="info-row">
                 <span className="lbl">Availability</span>
                 <span
@@ -297,6 +364,10 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
                 >
                   {product.is_perishable ? "Yes" : "No"}
                 </span>
+              </div>
+              <div className="info-row">
+                <span className="lbl">Low Stock At</span>
+                <span className="val">{product.low_stock_threshold} units</span>
               </div>
               {product.is_perishable && product.expiry_date && (
                 <div className="info-row">
@@ -358,11 +429,6 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
                 <span className="basic-meta-item">
                   <span className="basic-meta-label">Brand: </span>
                   {product.brand || "—"}
-                </span>
-                <span className="meta-dot">&bull;</span>
-                <span className="basic-meta-item">
-                  <span className="basic-meta-label">Last Updated: </span>
-                  {formatDate(product.updated_at)}
                 </span>
               </div>
             </section>
@@ -469,7 +535,7 @@ const ProductPage = ({ categories = [] }: { categories: any[] }) => {
                   </p>
                 </section>
 
-                {/* FOOTER TIMESTAMPS — single location only */}
+                {/* FOOTER TIMESTAMPS */}
                 <div className="meta-footer">
                   <span className="meta-item">
                     Last updated: <span>{formatDate(product.updated_at)}</span>

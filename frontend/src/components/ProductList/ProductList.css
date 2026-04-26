@@ -1,4 +1,4 @@
-/* Main container for product inventory */
+/* ---Main container for product inventory--- */
 .inventory-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -6,47 +6,151 @@
   font-family: "Inter", sans-serif;
 }
 
-/* Header & Count Styling */
+/* ---Header & Action Section--- */
 .list-header {
-  border-bottom: 1px solid #f0f0f0;
   padding-bottom: 16px;
 }
-
-/* Title styling */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .header-content h2 {
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: var(--text-secondary);
   margin: 0 0 4px 0;
 }
-.header-content{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  width:100%;
-  margin-bottom:10px;
+.action-button-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0; 
 }
-/* Product count text */
+
+/*---Primary Action Buttons ---*/
+/* Add product button */
+.add-button {
+  background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.add-button:hover {
+  background-color: var(--brand-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+/* Upload CSV button */
+.btn-upload-csv {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-upload-csv:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/*---CSV Upload Feedback ---*/
+
+.upload-result-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--status-info-bg);
+  border: 1px solid var(--brand-primary);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  margin-bottom: 12px;
+}
+.upload-failed {
+  color: var(--status-error);
+}
+.upload-result-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0 4px;
+}
+.upload-result-close:hover {
+  color: var(--text-primary);
+}
+.upload-all-failed {
+  background: var(--status-error-bg);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+
+/*---Info & Helper Text ---*/
+
 .product-count {
   color: var(--text-muted);
   font-size: 1.2rem;
 }
 
-/* Highlighted number inside count */
 .product-count span {
   font-weight: 600;
   color: var(--brand-secondary);
   margin: 0 4px;
 }
 
-/* Product grid layout */
+/*---Product Grid---*/
 .product-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
 }
 
-/* Empty State Styling */
+/*---Icon Scaling ---*/
+.manage-item-icon, 
+.action-button-group svg,
+.bulk-category-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* --- Empty States & Feedback --- */
+
 .empty-state-container {
   display: flex;
   flex-direction: column;
@@ -76,6 +180,7 @@
   line-height: 1.5;
 }
 
+/* --- Pagination --- */
 .pagination-bar {
   display: flex;
   justify-content: center;
@@ -87,7 +192,7 @@
 .pagination-bar button {
   padding: 8px 20px;
   border-radius: 8px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-default);
   background: white;
   cursor: pointer;
   font-weight: 600;
@@ -96,9 +201,9 @@
 }
 
 .pagination-bar button:hover:not(:disabled) {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  background: var(--status-info-bg);
+  color: black;
+  border-color: var(--brand-primary);
 }
 
 .pagination-bar button:disabled {
@@ -108,42 +213,12 @@
 
 .pagination-bar span {
   font-size: 0.85rem;
-  color: var(--ink-60);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
-.add-button {
-  background-color: var(--brand-primary);
-  color: white;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
 
-.add-button:hover {
-  background-color: var(--brand-secondary);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-.title-section {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* Responsive layout */
+/* ---Responsive layout ---*/
 @media (max-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -155,3 +230,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+
