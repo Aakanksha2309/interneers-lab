@@ -131,6 +131,8 @@ def test_get_product(service, repo_return, should_raise):
         ({},                                         None,  True,  {"id": "1"}, None),
         ({},                                         None,  False, {"id": "1"}, None),
         ({"category_id": "507f1f77bcf86cd799439011"}, True,  None,  None,        ProductNotFoundError),
+        ({"name": "Milk", "brand": "Dairy"},          None,  True,  {"id": "1"}, None),         
+        ({"name": "Milk", "brand": "Dairy"},          None,  True,  None,        BusinessValidationError), 
     ]
 )
 def test_update_product(
@@ -144,8 +146,23 @@ def test_update_product(
       4. No category provided; finds default 'Uncategorized'
       5. No category; creates 'Uncategorized' during execution
       6. Fails if product does not exist
+      7. No duplicate exists
+      8. Duplicate entry exists 
     """
     product_id = "507f1f77bcf86cd799439012"
+
+    if "name" in data or "brand" in data:
+        mock_current = MagicMock()
+        mock_current.name = "Milk"
+        mock_current.brand = "Dairy"
+        service.repository.get_by_id.return_value = mock_current
+        if expected_exception == BusinessValidationError:
+            # Simulate a duplicate found
+            service.repository.get_by_name_and_brand_excluding.return_value = MagicMock()
+        else:
+            # No duplicate
+            service.repository.get_by_name_and_brand_excluding.return_value = None
+
 
     # Mock category lookup
     if "category_id" in data and ObjectId.is_valid(data["category_id"]):
@@ -237,127 +254,103 @@ def test_fetch_products_for_category(service, category_id, category_exists, expe
         assert result == ["p1", "p2"]
         service.repository.get_products_by_category_id.assert_called_once_with(mock_category.id)
 
-# --- ADD PRODUCT TO CATEGORY ---
+# --- BULK ADD PRODUCTS TO CATEGORY ---
 
 @pytest.mark.parametrize(
-    "product_exists, category_id_valid, same_category, category_exists, expected_exception",
+    "product_ids, category_exists, product_found_list, expected_success, expected_errors",
     [
-        (True,  True,  False, True,  None),
-        (False, True,  False, True,  ProductNotFoundError),
-        (True,  False, False, True,  CategoryNotFoundError),
-        (True,  True,  False, False, CategoryNotFoundError),
-        (True,  True,  True,  True,  None),
+       
+        ([str(ObjectId()), str(ObjectId())], True, [True, True], 2, 0),
+        
+        # 2. 
+        (["pid_1", "pid_2"], True, [True, False], 1, 1),
+        
+        # 3. 
+        ([str(ObjectId())], False, [True], 0, "raises"),
     ]
 )
-def test_add_product_to_category(
-    service, product_exists, category_id_valid, same_category, category_exists, expected_exception
+def test_bulk_add_products_to_category(
+    service, product_ids, category_exists, product_found_list, expected_success, expected_errors
 ):
     """
-    1. Successful assignment to new valid category.
-    2. Fails if product ID doesn't exist.
-    3. Invalid category ID: rejects before DB.
-    4. Valid but non-existent category.
-    5. Already in that category: early return.
+    1. Success: Both products found and moved
+    2. Partial Failure: One product missing, one succeeds
+    3. Total Failure: Category itself doesn't exist
     """
-    valid_oid = "507f1f77bcf86cd799439011"
-    category_id = valid_oid if category_id_valid else "invalid-id"
-    product_id = "prod_123"
-
-    # Mock product
-    if product_exists:
-        mock_product = MagicMock()
-        if same_category and category_id_valid:
-            mock_product.category = MagicMock()
-            mock_product.category.id = valid_oid
-        else:
-            mock_product.category = None if not same_category else MagicMock()
-            if mock_product.category:
-                mock_product.category.id = ObjectId()  # different category
-        service.get_product = MagicMock(return_value=mock_product)
-    else:
-        service.get_product = MagicMock(side_effect=ProductNotFoundError)
-
-    # Mock category repo
+    # Generating a valid MongoDB style ID
+    valid_cat_id = str(ObjectId())
+   # Mock Category
     service.category_repository.get_by_id.return_value = MagicMock() if category_exists else None
-    service.repository.assign_category = MagicMock(return_value="assigned")
+    
+    # Mock get_product side effects based on product_found_list
+    side_effects = []
+    for found in product_found_list:
+        side_effects.append({"name": "Product"} if found else ProductNotFoundError("Missing"))
+    service.get_product = MagicMock(side_effect=side_effects)
+    
+    service.repository.assign_category.return_value = {"status": "updated"}
 
-    if expected_exception:
-        with pytest.raises(expected_exception):
-            service.add_product_to_category(category_id, product_id)
-        service.repository.assign_category.assert_not_called()
+    if expected_errors == "raises":
+        with pytest.raises(CategoryNotFoundError):
+            service.bulk_add_products_to_category(product_ids, valid_cat_id)
     else:
-        result = service.add_product_to_category(category_id, product_id)
-        if same_category and category_id_valid:
-            assert result == mock_product
-            service.repository.assign_category.assert_not_called()
-        else:
-            assert result == "assigned"
-            service.repository.assign_category.assert_called_once_with(
-                mock_product,
-                service.category_repository.get_by_id.return_value,
-            )
+        updated, errors = service.bulk_add_products_to_category(product_ids, valid_cat_id)
+        assert len(updated) == expected_success
+        assert len(errors) == expected_errors
 
-# --- REMOVE PRODUCT FROM CATEGORY ---
+# --- BULK REMOVE PRODUCTS FROM CATEGORY ---
 
 @pytest.mark.parametrize(
-    "product_exists, category_id_valid, product_in_correct_cat, default_exists, expected_exception",
+    "p_ids, items_found_in_db, should_raise",
     [
-        (True,  True,  True,  True,  None),
-        (False, True,  True,  True,  ProductNotFoundError),
-        (True,  False, True,  True,  CategoryNotFoundError),
-        (True,  True,  False, True,  BusinessValidationError),
-        (True,  True,  True,  False, None),
+        ([ObjectId()], 1, False),
+        ([ObjectId(), ObjectId()], 1, True),
     ]
 )
 def test_remove_product_from_category(
-    service, product_exists, category_id_valid, product_in_correct_cat, default_exists, expected_exception
+    service, p_ids, items_found_in_db,should_raise
 ):
     """
-    1. Moves from target category to 'Uncategorized' (success).
-    2. Product missing: fail.
-    3. Invalid category ID rejected.
-    4. Fails if not actually in the category.
-    5. 'Uncategorized' created if missing.
+    1. All products exist in DB: Success
+    2. One product requested is missing from DB: Raises ProductNotFoundError
     """
-    valid_oid = "507f1f77bcf86cd799439011"
-    category_id = valid_oid if category_id_valid else "invalid-id"
-    product_id = "prod_123"
-    mock_product = MagicMock()
-    mock_product.category = MagicMock()
+   # Mock the DB check: return a list of "found" ObjectIds
+    found_ids = p_ids[:items_found_in_db]
+    service.repository.get_existing_ids.return_value = found_ids
+    
+    service.category_repository.get_by_title_case_insensitive.return_value = {"title": "Uncategorized"}
+    service.repository.bulk_remove_category.return_value = True
 
-    if product_exists:
-        if product_in_correct_cat and category_id_valid:
-            mock_product.category.id = ObjectId(valid_oid)
-        else:
-            mock_product.category.id = ObjectId()  # different ID
-        service.get_product = MagicMock(return_value=mock_product)
+    if should_raise:
+        with pytest.raises(ProductNotFoundError):
+            service.bulk_remove_products_from_category([str(p) for p in p_ids])
     else:
-        service.get_product = MagicMock(side_effect=ProductNotFoundError)
+        result = service.bulk_remove_products_from_category([str(p) for p in p_ids])
+        assert result is True
 
-    if default_exists:
-        mock_default = MagicMock()
-        service.category_repository.get_by_title_case_insensitive = MagicMock(return_value=mock_default)
-    else:
-        service.category_repository.get_by_title_case_insensitive = MagicMock(return_value=None)
-        service.category_repository.create = MagicMock(return_value=MagicMock())
-
-    service.repository.remove_category = MagicMock(return_value="removed_successfully")
+# --- BULK DELETE PRODUCTS FROM A CATGEORY---
+@pytest.mark.parametrize("valid_ids, db_exists, expected_exception", [
+    ([str(ObjectId())], True, None),                       
+    (["invalid-id"], False, BusinessValidationError),    
+    ([str(ObjectId())], False, ProductNotFoundError),    
+])
+def test_bulk_delete_products(service, valid_ids, db_exists, expected_exception):
+    """
+    1. Success
+    2. Invalid format
+    3. Valid format but missing in DB
+    """
+    # Setup existence check
+    if expected_exception != BusinessValidationError:
+        service.repository.get_existing_ids.return_value = [ObjectId(p) for p in valid_ids] if db_exists else []
+    
+    service.repository.bulk_delete.return_value = True
 
     if expected_exception:
         with pytest.raises(expected_exception):
-            service.remove_product_from_category(category_id, product_id)
-        service.repository.remove_category.assert_not_called()
+            service.bulk_delete_products(valid_ids)
     else:
-        result = service.remove_product_from_category(category_id, product_id)
-        assert result == "removed_successfully"
-        service.get_product.assert_called_once_with(product_id)
-        called_args = service.repository.remove_category.call_args[0]
-        assert called_args[0] == mock_product
-        assert called_args[1] is not None
-        # Check default category logic
-        service.category_repository.get_by_title_case_insensitive.assert_called_once_with("Uncategorized")
-        if not default_exists:
-            service.category_repository.create.assert_called_once()
+        assert service.bulk_delete_products(valid_ids) is True
 
 # ================================
 # BULK CREATE FROM CSV

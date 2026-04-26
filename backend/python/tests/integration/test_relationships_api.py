@@ -96,7 +96,7 @@ def test_get_products_invalid_category(api_client):
 
 
 # ------------------------------------
-# ADDING PRODUCT TO A CATEGORY
+# BULK MOVE PRODUCTS TO A CATEGORY
 # ------------------------------------
 @pytest.mark.django_db
 def test_update_product_category_change(api_client):
@@ -120,7 +120,9 @@ def test_update_product_category_change(api_client):
     ).data["id"]
 
     res = api_client.post(
-        f"/api/products/category/{cat_b}/{prod}/", format="json"
+        "/api/products/category/bulk-move/",
+        {"product_ids": [prod], "category_id": cat_b},
+        format="json",
     )
     assert res.status_code in (200, 204)
 
@@ -153,12 +155,16 @@ def test_product_category_assignment_idempotent(api_client):
     product_id = prod_res.data["id"]
 
     res1 = api_client.post(
-        f"/api/products/category/{category_id}/{product_id}/", format="json"
+        "/api/products/category/bulk-move/",
+        {"product_ids": [product_id], "category_id": category_id},
+        format="json",
     )
     assert res1.status_code in (200, 204)
 
     res2 = api_client.post(
-        f"/api/products/category/{category_id}/{product_id}/", format="json"
+        "/api/products/category/bulk-move/",
+        {"product_ids": [product_id], "category_id": category_id},
+        format="json",
     )
     assert res2.status_code in (200, 204)
 
@@ -168,12 +174,12 @@ def test_product_category_assignment_idempotent(api_client):
 
 
 # -------------------------------------------------
-# REMOVING PRODUCT FROM A PARTICULAR CATEGORY
+# BULK REMOVE PRODUCTS FROM A PARTICULAR CATEGORY
 # -------------------------------------------------
 
 
 @pytest.mark.django_db
-def test_remove_product_from_category(api_client):
+def test_remove_products_from_category(api_client):
     """
     Test: If we remove a product from a category, it should fall back to "Uncategorized"
     """
@@ -197,8 +203,10 @@ def test_remove_product_from_category(api_client):
     assert prod_res.status_code in (200, 201)
     product_id = prod_res.data["id"]
 
-    res = api_client.delete(
-        f"/api/products/category/{category_id}/{product_id}/", format="json"
+    res = api_client.post(
+        "/api/products/category/bulk-remove/",
+        {"product_ids": [product_id]},
+        format="json",
     )
     assert res.status_code in [200, 204]
 
@@ -214,38 +222,9 @@ def test_remove_product_from_category(api_client):
 
 
 @pytest.mark.django_db
-def test_remove_product_wrong_category(api_client):
+def test_remove_products_invalid_product_id(api_client):
     """
-    Test Removing product from wrong category
-    """
-    cat1 = api_client.post("/api/categories/", {"title": "A"}, format="json").data["id"]
-    cat2 = api_client.post("/api/categories/", {"title": "B"}, format="json").data["id"]
-
-    prod = api_client.post(
-        "/api/products/",
-        {
-            "name": "Item",
-            "brand": "Test",
-            "selling_price": 100,
-            "warehouse_quantity": 5,
-            "category_id": cat1,
-            "is_perishable": False,
-        },
-        format="json",
-    ).data["id"]
-
-    res = api_client.delete(f"/api/products/category/{cat2}/{prod}/")
-    assert res.status_code == 400
-
-    get_res = api_client.get(f"/api/products/{prod}/")
-    assert get_res.status_code == 200
-    assert get_res.data["category_id"] == cat1
-
-
-@pytest.mark.django_db
-def test_delete_product_nonexistent_category(api_client):
-    """
-    Test removing product from invalid category
+    Try deleting products using invalid product id.
     """
     cat = api_client.post("/api/categories/", {"title": "A"}, format="json").data["id"]
     prod = api_client.post(
@@ -261,23 +240,12 @@ def test_delete_product_nonexistent_category(api_client):
         format="json",
     ).data["id"]
 
-    invalid_category_id = "507f1f77bcf86cd799439999"
+    api_client.delete(f"/api/products/{prod}/")
 
-    res = api_client.delete(f"/api/products/category/{invalid_category_id}/{prod}/")
-    assert res.status_code in (400, 404)
-
-
-@pytest.mark.django_db
-def test_remove_product_invalid_product_id(api_client):
-    """
-    Try deleting a product using a valid category but invalid product id.
-    """
-    cat_res = api_client.post("/api/categories/", {"title": "A"}, format="json")
-    category_id = cat_res.data["id"]
-
-    invalid_product_id = "507f1f77bcf86cd799439999"
-    res = api_client.delete(
-        f"/api/products/category/{category_id}/{invalid_product_id}/"
+    res = api_client.post(
+        "/api/products/category/bulk-remove/",
+        {"product_ids": [prod]},
+        format="json",
     )
     assert res.status_code in (400, 404)
 
@@ -302,8 +270,146 @@ def test_delete_category_after_removing_products(api_client):
         format="json",
     ).data["id"]
 
-    api_client.delete(f"/api/products/category/{cat}/{prod}/")
+    remove_res = api_client.post(
+        "/api/products/category/bulk-remove/",
+        {"product_ids": [prod]},
+        format="json",
+    )
+
+    assert remove_res.status_code == 200
 
     res = api_client.delete(f"/api/categories/{cat}/")
-
     assert res.status_code == 200
+
+# --------------------------------
+# BULK DELETE PRODUCTS
+# --------------------------------
+
+@pytest.mark.django_db
+def test_bulk_delete_products(api_client):
+    """Test: Bulk deleting multiple products"""
+    cat = api_client.post("/api/categories/", {"title": "BulkDeleteCat"}, format="json").data["id"]
+
+    prod1 = api_client.post(
+        "/api/products/",
+        {"name": "BulkDeleteP1", "brand": "BrandBD1", "selling_price": 100,
+         "warehouse_quantity": 5, "category_id": cat, "is_perishable": False},
+        format="json",
+    ).data["id"]
+
+    prod2 = api_client.post(
+        "/api/products/",
+        {"name": "BulkDeleteP2", "brand": "BrandBD2", "selling_price": 100,
+         "warehouse_quantity": 5, "category_id": cat, "is_perishable": False},
+        format="json",
+    ).data["id"]
+
+    res = api_client.post(
+        "/api/products/bulk-delete/",
+        {"product_ids": [prod1, prod2]},
+        format="json",
+    )
+    assert res.status_code == 200
+
+    assert api_client.get(f"/api/products/{prod1}/").status_code == 404
+    assert api_client.get(f"/api/products/{prod2}/").status_code == 404
+
+
+@pytest.mark.django_db
+def test_bulk_delete_nonexistent_products(api_client):
+    """Test: Bulk deleting a product that no longer exists"""
+    cat = api_client.post("/api/categories/", {"title": "BulkDeleteNonExistCat"}, format="json").data["id"]
+    prod = api_client.post(
+        "/api/products/",
+        {"name": "BulkDeleteGone", "brand": "BrandBDG", "selling_price": 100,
+         "warehouse_quantity": 5, "category_id": cat, "is_perishable": False},
+        format="json",
+    ).data["id"]
+
+    api_client.delete(f"/api/products/{prod}/")
+
+    res = api_client.post(
+        "/api/products/bulk-delete/",
+        {"product_ids": [prod]},
+        format="json",
+    )
+    assert res.status_code in (400, 404)
+
+
+@pytest.mark.django_db
+def test_bulk_delete_empty_list(api_client):
+    """Test: Bulk delete with empty list should fail"""
+    res = api_client.post(
+        "/api/products/bulk-delete/",
+        {"product_ids": []},
+        format="json",
+    )
+    assert res.status_code == 400
+
+
+# --------------------------------
+# BULK MOVE EDGE CASES
+# --------------------------------
+
+@pytest.mark.django_db
+def test_bulk_move_multiple_products(api_client):
+    """Test: Moving multiple products to a new category at once"""
+    cat_a = api_client.post("/api/categories/", {"title": "BulkMoveSource"}, format="json").data["id"]
+    cat_b = api_client.post("/api/categories/", {"title": "BulkMoveDest"}, format="json").data["id"]
+
+    prod1 = api_client.post(
+        "/api/products/",
+        {"name": "BulkMoveP1", "brand": "BrandBM1", "selling_price": 100,
+         "warehouse_quantity": 5, "category_id": cat_a, "is_perishable": False},
+        format="json",
+    ).data["id"]
+
+    prod2 = api_client.post(
+        "/api/products/",
+        {"name": "BulkMoveP2", "brand": "BrandBM2", "selling_price": 100,
+         "warehouse_quantity": 5, "category_id": cat_a, "is_perishable": False},
+        format="json",
+    ).data["id"]
+
+    res = api_client.post(
+        "/api/products/category/bulk-move/",
+        {"product_ids": [prod1, prod2], "category_id": cat_b},
+        format="json",
+    )
+    assert res.status_code == 200
+
+    assert api_client.get(f"/api/products/{prod1}/").data["category_id"] == cat_b
+    assert api_client.get(f"/api/products/{prod2}/").data["category_id"] == cat_b
+
+
+@pytest.mark.django_db
+def test_bulk_move_nonexistent_category(api_client):
+    """Test: Moving products to a category that doesn't exist"""
+    cat = api_client.post("/api/categories/", {"title": "BulkMoveNonExistCat"}, format="json").data["id"]
+    prod = api_client.post(
+        "/api/products/",
+        {"name": "BulkMoveNonExist", "brand": "BrandBMNE", "selling_price": 100,
+         "warehouse_quantity": 5, "category_id": cat, "is_perishable": False},
+        format="json",
+    ).data["id"]
+
+    fake_category_id = "507f1f77bcf86cd799439099"
+    res = api_client.post(
+        "/api/products/category/bulk-move/",
+        {"product_ids": [prod], "category_id": fake_category_id},
+        format="json",
+    )
+    assert res.status_code in (400, 404)
+
+
+@pytest.mark.django_db
+def test_bulk_move_empty_product_list(api_client):
+    """Test: Bulk move with empty product list should fail"""
+    cat = api_client.post("/api/categories/", {"title": "BulkMoveEmptyCat"}, format="json").data["id"]
+
+    res = api_client.post(
+        "/api/products/category/bulk-move/",
+        {"product_ids": [], "category_id": cat},
+        format="json",
+    )
+    assert res.status_code == 400

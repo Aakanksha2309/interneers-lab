@@ -22,6 +22,7 @@ def service():
     """
     service = CategoryService()
     service.repository = MagicMock()
+    service.product_repository=MagicMock()
     return service
 
 
@@ -62,11 +63,21 @@ def test_create_category(service, repo_behavior, expected_exception):
 
 
 def test_get_all_categories(service):
-    service.repository.get_all.return_value = ["cat1", "cat2"]
+    cat1 = MagicMock()
+    cat1.id = ObjectId()
+    cat2 = MagicMock()
+    cat2.id = ObjectId()
+    service.repository.get_all.return_value = [cat1, cat2]
+    service.product_repository.count_by_category.return_value = 5
 
     result = service.get_all_categories()
 
-    assert result == ["cat1", "cat2"]
+    assert len(result) == 2
+    assert result[0]["category"] == cat1
+    assert result[0]["product_count"] == 5
+    assert result[1]["category"] == cat2
+    assert result[1]["product_count"] == 5
+    service.product_repository.count_by_category.assert_called()
 
 
 # ------------------ GET CATEGORY BY ID ------------------
