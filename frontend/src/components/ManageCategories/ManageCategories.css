@@ -1,12 +1,47 @@
-/* --- Main Layout Container --- */
+/**
+ * Layout and styling for the category administration dashboard.
+ */
+
+/* --- Main Layout & Page Header --- */
 .manage-categories-view {
   animation: fadeIn 0.3s ease-in;
 }
 
-/* CRITICAL FIX: 
-     Removed padding: 0 50px here because it was clashing with the 
-     header's margin: 0 50px, making the tiles narrower than the header. 
-  */
+.category-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.category-header-info h1 {
+  margin: 0;
+  padding: 2rem 0 0.5rem 2rem;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.category-header-info p {
+  color: #64748b;
+  padding: 0 0 1rem 2rem;
+  margin: 0;
+}
+
+.create-cat-btn {
+  background: var(--brand-primary);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 50px;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+/* --- The Alignment Engine (Grid Layouts) --- */
 .category-grid {
   display: flex;
   flex-direction: column;
@@ -14,8 +49,7 @@
   padding: 0px 0px 50px 0px;
 }
 
-/* --- The Alignment Engine --- */
-/* Both elements now share identical width, padding, and base alignment logic */
+/* Base Alignment for Header and Tiles */
 .category-header-bar,
 .category-tile {
   display: grid;
@@ -26,17 +60,17 @@
   box-sizing: border-box;
 }
 
-/* Header Grid: Exact 5-column split */
+/* Header Grid Structure */
 .category-header-bar {
   grid-template-columns: 2.2fr 2fr 1fr 1.2fr 180px;
-  background:rgb(30, 41, 59);
+  background: rgb(30, 41, 59);
   color: #f8fafc;
   border-radius: 10px;
   margin-bottom: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Tile Grid: 4-column split to accommodate the .tsx 'stats-group' div */
+/* Tile Grid Structure */
 .category-tile {
   grid-template-columns: 2.2fr 2fr 2.3fr 180px;
   background: white;
@@ -46,20 +80,22 @@
   min-height: 100px;
 }
 
-/* Sub-grid for the stats-group to align Inventory/Value with Header items 3 and 4 */
-.stats-group {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr; /* Perfectly matches header cols 3 and 4 */
-  gap: 20px;
-  align-items: center;
-}
-
 .category-tile:hover {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
-/* --- Typography & Header Labels --- */
+/* Sub-grid for Inventory/Value alignment */
+.stats-group {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+  align-items: center;
+}
+
+/* --- Column Components --- */
+
+/* Typography & Labels */
 .header-item {
   font-size: 0.75rem;
   font-weight: 700;
@@ -68,12 +104,6 @@
   color: #94a3b8;
 }
 
-.header-actions {
-  text-align: right;
-  padding-right: 20px;
-}
-
-/* --- Column 1: Info (Title & Icon) --- */
 .main-info {
   display: flex;
   align-items: center;
@@ -106,10 +136,10 @@
   font-size: 0.75rem;
   color: #94a3b8;
   white-space: nowrap;
-  font-weight:500;
+  font-weight: 500;
 }
 
-/* --- Column 2: Description --- */
+/* Description */
 .description-box p {
   font-size: 0.9rem;
   color: #64748b;
@@ -121,7 +151,7 @@
   overflow: hidden;
 }
 
-/* --- Column 3: Inventory Pill --- */
+/* Inventory Pill */
 .item-pill {
   background: #f1f5f9;
   border-radius: 999px;
@@ -146,14 +176,14 @@
   font-weight: 600;
 }
 
-/* --- Column 4: Value Display --- */
+/* Value Display */
 .value-display {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-.stat-value {
+.category-stat-value {
   font-weight: 700;
   font-size: 1.2rem;
   color: #0f172a;
@@ -163,11 +193,16 @@
   color: #10b981;
 }
 
-/* --- Column 5: Actions --- */
+/* ---  Actions & Buttons --- */
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.category-header-actions {
+  text-align: right;
+  padding-right: 20px;
 }
 
 .action-btn {
@@ -200,6 +235,7 @@
   background: #f0fdf4;
   color: #16a34a;
 }
+
 .tile-edit-btn:hover {
   background: #16a34a;
   color: white;
@@ -210,47 +246,30 @@
   background: #fef2f2;
   color: #ef4444;
 }
+
 .tile-delete-btn:hover {
   background: #ef4444;
   color: white;
 }
 
-/* --- Page Header & Create Button --- */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+/* --- Status Indicators & Borders --- */
+.category-tile.status-critical {
+  border-left: 6px solid #ef4444;
 }
 
-.header-info h1 {
-  margin: 0;
-  padding: 2rem 0 0.5rem 2rem;
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: #0f172a;
+.category-tile.status-warning {
+  border-left: 6px solid #f59e0b;
 }
 
-.header-info p {
-  color: #64748b;
-  padding: 0 0 1rem 2rem;
-  margin: 0;
+.category-tile.status-healthy {
+  border-left: 6px solid #10b981;
 }
 
-.create-cat-btn {
-  background:var(--brand-primary);
-  color: white;
-  padding: 10px 22px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  margin-right: 50px;
-  transition: all 0.2s;
-  font-size:0.85rem;
+.category-tile.status-none {
+  border-left: 6px solid #94a3b8;
 }
 
-/* --- Animations --- */
+/* ---  Animations --- */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -260,22 +279,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.category-tile.status-critical {
-  border-left: 6px solid #ef4444;
-}
-
-/* Orange for Low Stock */
-.category-tile.status-warning {
-  border-left: 6px solid #f59e0b;
-}
-
-/* Green for Healthy Stock */
-.category-tile.status-healthy {
-  border-left: 6px solid #10b981;
-}
-
-.category-tile.status-none {
-    border-left:6px solid #94a3b8; /* Solid Grey indicator */
 }

@@ -1,22 +1,28 @@
+/**
+ * An administrative hub for category lifecycle management.
+ * Handles CRUD operations, real-time inventory valuation per category,
+ * and dynamic health-status indicators based on stock levels.
+ */
 import React, { useEffect, useState } from "react";
 import {
   fetchCategories,
   deleteCategory,
   updateCategory,
-  createCategory, // Ensure this is imported
+  createCategory,
 } from "../../services/api";
 import { Category, Product } from "../../type";
 import { FiTrash2, FiFolder, FiArrowRight, FiEdit2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "./ManageCategories.css";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
-import CategoryModal from "../../components/CategoryModal/CategoryModal"; // Adjust path if needed
+import CategoryModal from "../../components/CategoryModal/CategoryModal";
 
 interface ManageCategoriesProps {
   products: Product[];
 }
 
 const ManageCategories = ({ products }: ManageCategoriesProps) => {
+  // ---State Manangement ---
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,12 +55,12 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
     setIsModalOpen(true);
   };
 
-  // Inside ManageCategories.tsx - Update handleModalSubmit
   const [formMessage, setFormMessage] = useState<{
     type: "error" | "success";
     text: string;
   } | null>(null);
 
+  // Updates local state directly for "Edit"
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -62,21 +68,15 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
 
     try {
       if (modalMode === "create") {
-        // 1. The API returns { id: string, message: string }
         const response = await createCategory(tempData);
-
-        // Since creation doesn't return the full category object, we re-fetch the list
         await loadCategories();
 
         setFormMessage({
           type: "success",
-          text: response.message, // Uses the message from your API JSON
+          text: response.message,
         });
       } else {
-        // 2. The API returns { message: string, category: Category }
         const response = await updateCategory(selectedCategoryId!, tempData);
-
-        // We extract the 'category' object from inside the response
         const updatedCat = response.category;
 
         // Update the local list state so the UI changes instantly
@@ -86,30 +86,26 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
 
         setFormMessage({
           type: "success",
-          text: response.message, // Uses the message from your API JSON
+          text: response.message,
         });
       }
 
-      // Close the modal after a 1-second delay so the user can see the success message
+      // Briefly show success message before closing
       setTimeout(() => {
         setIsModalOpen(false);
         setFormMessage(null);
       }, 1000);
     } catch (err: any) {
-      // Standard error handling
-      const serverMessage = err.response?.data?.message || "Operation failed.";
+      const serverMessage =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Operation failed.";
       setFormMessage({ type: "error", text: serverMessage });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Existing helpers (kept as is)
-  const getProductCount = (categoryId: string) => {
-    return products.filter((p) => String(p.category_id) === String(categoryId))
-      .length;
-  };
-
+  //Calculates the total financial value of all products in a specific category
   const getCategoryValue = (categoryId: string) => {
     return products
       .filter((p) => String(p.category_id) === String(categoryId))
@@ -146,7 +142,7 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
       }
     }
   };
-
+  // Returns status based on the inventory of a catgeory products
   const getCategoryStatusClass = (categoryId: string) => {
     const catProducts = products.filter(
       (p) => String(p.category_id) === String(categoryId),
@@ -170,8 +166,8 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
 
   return (
     <div className="manage-categories-view">
-      <header className="page-header">
-        <div className="header-info">
+      <header className="category-page-header">
+        <div className="category-header-info">
           <h1>Manage Categories</h1>
           <p className="sub-heading">
             Currently managing {categories.length} product categories.
@@ -182,6 +178,7 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
         </button>
       </header>
 
+      {/* Header labels for the grid */}
       <div className="category-header-bar">
         <div className="header-item">Category</div>
         <div className="header-item">Description</div>
@@ -219,22 +216,28 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
               </div>
             </div>
 
+            {/* Description Snippet */}
             <div className="tile-section description-box">
               <p>{cat.description || "No description provided."}</p>
             </div>
 
+            {/* Statistical Metadata */}
             <div className="tile-section stats-group">
               <div className="item-pill">
-                <span className="pill-count">{getProductCount(cat.id)}</span>
+                <span className="pill-count">
+                  {" "}
+                  {(cat as any).product_count ?? 0}
+                </span>
                 <span className="pill-label">Items</span>
               </div>
               <div className="value-display">
-                <span className="stat-value text-green">
+                <span className="category-stat-value text-green">
                   ₹{getCategoryValue(cat.id).toLocaleString()}
                 </span>
               </div>
             </div>
 
+            {/* Action buttons */}
             <div className="tile-section actions">
               <button
                 className="action-btn view-btn"
@@ -259,7 +262,6 @@ const ManageCategories = ({ products }: ManageCategoriesProps) => {
         ))}
       </div>
 
-      {/* New Component-based Modal */}
       <CategoryModal
         isOpen={isModalOpen}
         mode={modalMode}
