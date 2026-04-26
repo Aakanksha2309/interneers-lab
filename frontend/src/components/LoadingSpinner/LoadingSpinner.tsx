@@ -1,11 +1,14 @@
+/**
+ * LoadingSpinner — reusable loading indicator
+ */
 import React from "react";
 import { FiLoader } from "react-icons/fi";
 import "./LoadingSpinner.css";
 
 interface LoadingSpinnerProps {
-  message?: string; // Optional text to show below spinner
-  size?: "small" | "large"; // Control the size
-  fullPage?: boolean; // Center in the middle of the screen
+  message?: string;
+  size?: "small" | "large";
+  fullPage?: boolean;
 }
 
 const LoadingSpinner = ({

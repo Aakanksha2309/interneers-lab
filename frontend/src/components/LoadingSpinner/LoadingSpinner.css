@@ -1,3 +1,5 @@
+/* Styles for the LoadingSpinner component*/
+
 .spinner-container {
   display: flex;
   flex-direction: column;
@@ -7,12 +9,12 @@
 }
 
 .spinner-container.full-page {
-  height: 60vh; /* Centers it in the main content area */
+  height: 60vh; 
 }
 
 .spin-icon {
   animation: rotate 1s linear infinite;
-  color: #2563eb; /* Match your primary blue */
+  color:var(--brand-primary);
 }
 
 .large .spin-icon {

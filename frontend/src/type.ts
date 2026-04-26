@@ -7,14 +7,14 @@ export interface Product {
   name: string;
   brand: string;
   description?: string;
-  category_id: string; 
+  category_id: string;
   warehouse_quantity: number;
   low_stock_threshold: number;
   is_perishable: boolean;
-  expiry_date?: string; 
-  selling_price: string; 
-  cost_price: string; 
-  created_at: string; 
+  expiry_date?: string;
+  selling_price: string;
+  cost_price: string;
+  created_at: string;
   updated_at: string;
 }
 
@@ -27,6 +27,7 @@ export interface PaginatedResponse {
     current_page: number;
     has_next: boolean;
     has_prev: boolean;
+    total_inventory_value:number;
   };
 }
 
@@ -39,3 +40,12 @@ export interface Category {
 }
 
 export type CategoryListResponse = Category[];
+
+export interface ProductFilters {
+  search?: string;
+  brand?: string;
+  category_ids?: string;
+  min_price?: number;
+  max_price?: number;
+  low_stock?: boolean;
+}
