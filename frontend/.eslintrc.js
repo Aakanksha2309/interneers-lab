@@ -1,7 +1,7 @@
 module.exports = {
   extends: [
     "react-app", // Or your existing ESLint config
-    "react-app/jest", // Jest-specific linting rules
+    //"react-app/jest", // Jest-specific linting rules
     "prettier", // This makes eslint-config-prettier active. It disables all formatting rules that might conflict with prettier.
   ],
   plugins: ["prettier"], // This enables eslint-plugin-prettier. Sets up rules to run prettier as an eslint rule.

@@ -1,0 +1,207 @@
+/* CSS for Product card component */
+
+/* ----Main product card container---- */
+.product-card {
+  background: var(--bg-surface);
+  border-radius: 16px; /* Smoother corners like Apple/Figma */
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----Card hover effect---- */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/*---- Product image section ---- */
+.image-container {
+  width: 100%;
+  height: 180px;
+  background: var(--bg-subtle);
+  position: relative;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ----Content area below image---- */
+.product-info {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* ----Header section holding name and stock info ----*/
+.info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* ----Product title styling ----*/
+.product-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0;
+  flex: 1;
+}
+
+/* ----Stock indicator shown on product card---- */
+.product-card .stock-badge {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  background: #eef1f4;
+  color: var(--text-muted);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* Highlight low stock items */
+.product-card .stock-badge.low {
+  background: var(--status-error-bg);
+  color: var(--status-error);
+  font-weight: 700;
+}
+
+/* Position stock badge on image */
+.product-card .image-container .stock-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  margin-left: 0;
+}
+
+/* Price and category row layout */
+.price-category-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.product-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ----Category label---- */
+.category-tag {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  background: var(--status-info-bg);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+/* ----Button used to open product details ----*/
+.expand-btn {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #475569;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.expand-btn:hover {
+  background: var(--border-subtle);
+  border-color: #cbd5e1;
+}
+
+/* Faded text for out of stock */
+.faded-text {
+  color: var(--text-faint) !important;
+}
+
+/* Grayscale effect for out-of-stock product images */
+.grayscale-img {
+  filter: grayscale(100%);
+}
+
+/* Different stock states */
+.stock-badge.out-of-stock {
+  background-color: var(--status-error);
+  color: var(--bg-surface);
+}
+
+.stock-badge.in-stock {
+  background-color: var(--status-success);
+  color: var(--bg-surface);
+}
+
+/* Short description text */
+.product-subtitle {
+  font-size: 0.95rem;
+  color: #848a94;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  min-height: 2.8rem;
+}
+
+/* ----Brand label styling---- */
+.product-brand {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8184a2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.out-of-stock-card {
+  background-color: #fff5f5;
+  border: 1px solid var(--status-error-bg);
+  opacity: 0.75;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.product-select-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #2563eb;
+  z-index: 2;
+  appearance: auto;
+  -webkit-appearance: auto;
+  opacity: 1;
+}

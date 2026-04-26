@@ -1,0 +1,422 @@
+/* ---Filter Bar Container --- */
+
+.filterbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* --- Search Input --- */
+
+.filterbar-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 42px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.filterbar-search:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filterbar-search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.filterbar-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.filterbar-search-input::placeholder {
+  color: var(--text-faint);
+}
+
+.filterbar-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  padding: 3px 5px;
+  border-radius: 5px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.filterbar-search-clear:hover {
+  background: var(--bg-muted);
+  color: var(--text-muted);
+}
+
+/* ---Pill Buttons --- */
+
+.filterbar-pill-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.filterbar-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+.filterbar-pill:hover {
+  border-color: var(--brand-primary);
+  background: var(--status-info-bg);
+}
+
+/* Active state — filter has a value selected */
+.filterbar-pill.is-active {
+  border-color: var(--brand-primary);
+  background: var(--status-info-bg);
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+/* Open state — dropdown is visible */
+.filterbar-pill.is-open {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filterbar-pill-chevron {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.filterbar-pill-chevron.is-flipped {
+  transform: rotate(180deg);
+}
+
+.filterbar-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--brand-primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---Dropdown Panels --- */
+
+.filterbar-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  animation: filterbar-fadein 0.15s ease;
+}
+
+@keyframes filterbar-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterbar-dropdown:not(.filterbar-filters-panel) {
+  min-width: 200px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.filterbar-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: background 0.15s;
+}
+
+.filterbar-dropdown-option:hover {
+  background: var(--bg-subtle);
+}
+
+.filterbar-dropdown-option:has(input:checked) {
+  background: var(--status-info-bg);
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+.filterbar-dropdown-option input[type="checkbox"] {
+  appearance: checkbox;
+  accent-color: var(--brand-primary);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.filterbar-dropdown-option:has(input:checked) input[type="checkbox"] {
+  accent-color: var(--brand-primary);
+}
+
+.filterbar-dropdown-empty {
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  padding: 12px;
+  margin: 0;
+  text-align: center;
+}
+
+/* --- Filters Panel ---  */
+
+.filterbar-filters-panel {
+  min-width: 260px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  right: 0;
+  left: auto;
+}
+
+.filters-panel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filters-panel-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.filters-panel-input {
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.filters-panel-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: var(--bg-surface);
+}
+
+.filters-panel-input::placeholder {
+  color: var(--text-faint);
+}
+
+.filters-panel-input[type="number"]::-webkit-inner-spin-button,
+.filters-panel-input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.filters-panel-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filters-panel-price-input {
+  flex: 1;
+  width: auto !important;
+}
+
+.filters-panel-price-sep {
+  color: var(--text-faint);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.filters-panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.filters-panel-toggle-checkbox {
+  display: none;
+}
+
+.filters-panel-toggle-track {
+  width: 34px;
+  height: 19px;
+  background: var(--border-default);
+  border-radius: 999px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.filters-panel-toggle:has(.filters-panel-toggle-checkbox:checked)
+  .filters-panel-toggle-track {
+  background: var(--brand-primary);
+}
+
+.filters-panel-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 13px;
+  height: 13px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.filters-panel-toggle:has(.filters-panel-toggle-checkbox:checked)
+  .filters-panel-toggle-thumb {
+  transform: translateX(15px);
+}
+
+.filters-panel-toggle-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Apply button at the bottom of the filters panel */
+.filter-panel-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: flex-start;
+}
+
+.filter-apply-btn {
+  background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.filter-apply-btn:hover {
+  background-color: var(--brand-secondary);
+}
+
+/* ---Reset Button ---  */
+
+.filterbar-reset {
+  flex-shrink: 0;
+  height: 42px;
+  padding: 0 14px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1.5px solid var(--status-error-bg);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.filterbar-reset:hover {
+  background: var(--status-error-bg);
+  color: var(--status-error);
+  border-color: var(--status-error);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+}
+
+/* --- Locked State (category page) ---  */
+
+/* Prevents changing category when viewing a specific category page */
+.filterbar-pill.is-locked {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Responsive ---  */
+
+@media (max-width: 640px) {
+  .filterbar {
+    flex-wrap: wrap;
+  }
+
+  .filterbar-search {
+    flex: 1 1 100%;
+  }
+
+  .filterbar-filters-panel {
+    right: auto;
+    left: 0;
+  }
+}
