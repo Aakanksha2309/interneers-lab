@@ -15,7 +15,6 @@
   background-color: var(--bg-surface);
 }
 
-
 /* Brand section (logo and tagline stacked) */
 .navbar-brand {
   display: flex;
@@ -24,8 +23,8 @@
 }
 .navbar-tagline {
   font-size: 0.9rem;
-  color: var( --text-faint);
-  font-weight:500;
+  color: var(--text-faint);
+  font-weight: 500;
   letter-spacing: 0.01em;
 }
 .logo {
@@ -35,6 +34,9 @@
   display: flex;
   align-items: center;
 }
+.logo-link {
+  text-decoration: none;
+}
 .logo-black {
   color: black;
 }
@@ -42,12 +44,11 @@
   color: var(--brand-primary);
 }
 
-
 /* container for navigation buttons on right side */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 24px; 
+  gap: 24px;
 }
 
 /* Style for Dashboard and About Us */
@@ -60,6 +61,7 @@
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 4px 8px;
+  text-decoration: none;
 }
 
 .nav-link:hover {
@@ -77,6 +79,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);

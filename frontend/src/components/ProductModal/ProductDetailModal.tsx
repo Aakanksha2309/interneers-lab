@@ -4,21 +4,27 @@
  */
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { MdDelete } from "react-icons/md";
-import { MOCK_CATEGORIES } from "../../mockData";
-import { Product } from "../../type"; // import the type
+import { Product, Category } from "../../type";
 import "./ProductDetailModal.css";
+import { deleteProduct } from "services/api";
+import axios from "axios";
 
 interface ProductDetailModalProps {
-  product: Product; // single prop instead of listing every field
+  product: Product;
+  categories: Category[];
   onClose: () => void;
+  onDeleteSuccess: () => void;
 }
 
 const ProductDetailModal = ({
   product,
+  categories,
   onClose,
+  onDeleteSuccess,
 }: ProductDetailModalProps): React.ReactElement => {
-  // lock background scroll when modal is open
+  // Prevent background scrolling
   useEffect(() => {
     document.body.style.overflow = "hidden";
     // restore scroll on close
@@ -40,17 +46,63 @@ const ProductDetailModal = ({
     is_perishable,
   } = product;
 
-  // get category name from id
-  const categoryObject = MOCK_CATEGORIES.find((cat) => cat.id === category_id);
+  // Resolve category title from provided list
+  const categoryObject = categories.find((cat) => cat.id === category_id);
   const categoryName = categoryObject ? categoryObject.title : "Unknown";
 
-  // stock checks
+  // Derive stock status
   const isLowStock =
     warehouse_quantity > 0 && warehouse_quantity <= low_stock_threshold;
   const outOfStock = warehouse_quantity === 0;
 
   //random image
   const imageUrl = `https://loremflickr.com/400/400/${name.split(" ")[0]}`;
+
+  const navigate = useNavigate();
+
+  // Close modal and navigate to specific product routes
+  const handleNavigation = (mode: "view" | "edit") => {
+    // 1. CRITICAL: Clean up the UI before leaving
+    onClose();
+
+    // 2. Determine path based on mode
+    const path =
+      mode === "edit" ? `/product/${id}?edit=true` : `/product/${id}`;
+
+    // 3. Execute navigation
+    navigate(path, {
+      state: {
+        from: "category",
+        categoryId: product.category_id,
+        categoryTitle: categoryName,
+      },
+    });
+  };
+
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${name}"? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteProduct(id);
+      onClose();
+      onDeleteSuccess(); // triggers list refresh in App.tsx
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.data) {
+        setDeleteError(err.response.data.error || "Failed to delete product.");
+      } else {
+        setDeleteError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return ReactDOM.createPortal(
     <div className="modal-backdrop" onClick={onClose}>
@@ -180,13 +232,28 @@ const ProductDetailModal = ({
                 "High-quality product curated for the InvTrack inventory system."}
             </p>
           </div>
-
+          {deleteError && <p className="modal-delete-error">{deleteError}</p>}
           {/* action buttons */}
           <div className="card-actions">
-            <button className="btn-primary">See Full Details</button>
-            <button className="btn-icon">Edit</button>
-            <button className="btn-icon btn-danger">
+            <button
+              className="btn-primary"
+              onClick={() => handleNavigation("view")}
+            >
+              See Full Details
+            </button>
+            <button
+              className="btn-icon"
+              onClick={() => handleNavigation("edit")}
+            >
+              Edit
+            </button>
+            <button
+              className="btn-icon btn-danger"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
               <MdDelete className="delete-icon" />
+              {isDeleting ? "Deleting..." : ""}
             </button>
           </div>
         </div>

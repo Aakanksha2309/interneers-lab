@@ -20,7 +20,7 @@ class ProductView(APIView):
     def get(self, request):
         try:
             page = int(request.GET.get('page', 1))
-            limit = int(request.GET.get('limit', 10))
+            limit = int(request.GET.get('limit', 15))
 
             if page < 1 or limit < 1:
                 return Response({"error": "Page and limit must be positive integers"}, status=400)
@@ -123,6 +123,8 @@ class ProductDetailView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
         except CategoryNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except BusinessValidationError as e:                                   
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     # Delete product 
     def delete(self, request, product_id):
@@ -135,7 +137,7 @@ class ProductDetailView(APIView):
         except ProductNotFoundError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-    #PRODUCT OPERATIONS BASED ON CATEGORY 
+# PRODUCT OPERATIONS BASED ON CATEGORY 
 class ProductCategoryView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -150,23 +152,59 @@ class ProductCategoryView(APIView):
             return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
       
 
-    # Link a product to a category
-    def post(self,request,category_id,product_id):
+    # Link products to a category
+    def post(self,request):
+        product_ids = request.data.get("product_ids", [])
+        target_category_id = request.data.get("category_id")
+        if not product_ids or not target_category_id:
+            return Response(
+                {"error": "product_ids and category_id are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         try:
-            product=self.service.add_product_to_category(category_id,product_id)
-            serializer=ProductSerializer(product)
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            updated, errors = self.service.bulk_add_products_to_category(
+                product_ids,
+                target_category_id
+            )
+            response_data = {
+                "moved": len(updated),
+                "failed": len(errors),
+                "products": ProductSerializer(updated, many=True).data,
+            }
+            if errors:
+                response_data["errors"] = errors
+                return Response(
+                    response_data, status=status.HTTP_207_MULTI_STATUS
+                )
+            return Response(response_data, status=status.HTTP_200_OK)
+
         except CategoryNotFoundError as e:
-            return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
-        except ProductNotFoundError as e:
-            return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
-    
-    # Unlink a product from a category
-    def delete(self,request,category_id,product_id):
+            return Response(
+                {"error": str(e)}, status=status.HTTP_404_NOT_FOUND
+            )
+        except BusinessValidationError as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+class ProductBulkRemoveView(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)  
+        self.service = ProductService() 
+    # Unlink products from a category
+    def post(self,request):
+        product_ids=request.data.get('product_ids',[])
+        if not isinstance(product_ids, list) or not product_ids:
+            return Response(
+                {"error": "A non-empty list of 'product_ids' is required."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
         try:
-            product=self.service.remove_product_from_category(category_id,product_id)
-            serializer=ProductSerializer(product)
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            product=self.service.bulk_remove_products_from_category(product_ids)
+            return Response({
+                "message": f"Successfully unlinked {len(product_ids)} products and moved them to Uncategorized.",
+                "count": len(product_ids)
+            }, status=status.HTTP_200_OK)
         except CategoryNotFoundError as e:
             return Response({"error":str(e)},status=status.HTTP_404_NOT_FOUND)
         except ProductNotFoundError as e:
@@ -174,13 +212,41 @@ class ProductCategoryView(APIView):
         except BusinessValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class ProductBulkDeleteView(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.service = ProductService()
+
+    #  Handles the bulk deletion of products. 
+    def post(self, request):
+        product_ids = request.data.get('product_ids', [])
+
+        if not isinstance(product_ids, list) or not product_ids:
+            return Response(
+                {"error": "A non-empty list of 'product_ids' is required."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            self.service.bulk_delete_products(product_ids)
+            
+            return Response({
+                "status": "success",
+                "message": f"Successfully deleted {len(product_ids)} products."
+            }, status=status.HTTP_200_OK)
+
+        except ProductNotFoundError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+            
+        except BusinessValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ProductBulkUploadView(APIView):
     parser_classes = [MultiPartParser]
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.service = ProductService()
-    # Handle CSV File Uploads
+    # Handles CSV File Uploads
     def post(self,request):
         file_obj = request.FILES.get('file')
         if not file_obj:

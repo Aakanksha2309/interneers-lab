@@ -8,60 +8,44 @@ import { FaClock, FaExclamationTriangle, FaRupeeSign } from "react-icons/fa";
 import { MdInventory } from "react-icons/md";
 
 interface StatsCardsProps {
-  products: Product[];
+  totalItems: number;
+  lowStockCount: number;
+  expiringSoonCount: number;
+  inventoryValue: number;
 }
 
-const StatsCards = ({ products }: StatsCardsProps) => {
-  // total number of products
-  const totalProducts = products.length;
-
-  //products that are low in stock
-  const lowStockItems = products.filter(
-    (p) =>
-      p.warehouse_quantity <= p.low_stock_threshold && p.warehouse_quantity > 0,
-  ).length;
-
-  // products expiring within 30 days
-  const expiringSoon = products.filter((p) => {
-    if (!p.is_perishable || !p.expiry_date) return false;
-    const days = Math.ceil(
-      (new Date(p.expiry_date).getTime() - new Date().getTime()) /
-        (1000 * 60 * 60 * 24),
-    );
-    return days <= 30 && days > 0;
-  }).length;
-
-  // total inventory value
-  const totalInventoryValue = products.reduce((acc, p) => {
-    return acc + Number(p.selling_price) * p.warehouse_quantity;
-  }, 0);
-
+const StatsCards = ({
+  totalItems,
+  lowStockCount,
+  expiringSoonCount,
+  inventoryValue,
+}: StatsCardsProps) => {
   // data used to render each stat card
   const stats = [
     {
       label: "Total Products",
-      value: totalProducts,
+      value: totalItems,
       subtitle: "items in system",
       icon: <MdInventory />,
       accent: "blue",
     },
     {
       label: "Low Stock Items",
-      value: lowStockItems,
+      value: lowStockCount,
       subtitle: "need restocking",
       icon: <FaExclamationTriangle />,
       accent: "orange",
     },
     {
       label: "Expiring Soon",
-      value: expiringSoon,
+      value: expiringSoonCount,
       subtitle: "within 30 days",
       icon: <FaClock />,
       accent: "amber",
     },
     {
       label: "Inventory Value",
-      value: `₹${totalInventoryValue.toLocaleString("en-IN", {
+      value: `₹${inventoryValue.toLocaleString("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}`,

@@ -1,4 +1,4 @@
-/* ── Backdrop ── */
+/* --- Backdrop (Overlay) --- */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -12,7 +12,7 @@
   animation: backdropFadeIn 0.2s ease;
 }
 
-/* Modal Card */
+/* --- Modal Card --- */
 .modal-card {
   background: var(--bg-surface);
   border-radius: 20px;
@@ -25,19 +25,20 @@
   animation: modalSlideUp 0.25s ease;
 }
 
-/* Scrollbar styling for modal */
 .modal-card::-webkit-scrollbar {
   width: 6px;
 }
+
 .modal-card::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .modal-card::-webkit-scrollbar-thumb {
   background: var(--border-default);
   border-radius: 10px;
 }
 
-/* Image section */
+/* --- Header & Image Section --- */
 .modal-image-container {
   width: 100%;
   height: 220px;
@@ -67,14 +68,17 @@
   color: #334155;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   z-index: 100;
-  transition: background 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
 }
+
 .modal-close:hover {
   background: var(--border-subtle);
   transform: scale(1.08);
 }
 
-/* Modal Content Area */
+/* --- Content Layout --- */
 .modal-body {
   padding: 24px;
   display: flex;
@@ -82,7 +86,24 @@
   gap: 16px;
 }
 
-/* Product Details grid  */
+.modal-card .info-header {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+}
+
+.modal-card .product-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0;
+  flex: 1;
+}
+
+/* --- Data Grid & Specs --- */
+
 .details-grid {
   background: var(--bg-subtle);
   border-radius: 10px;
@@ -92,41 +113,27 @@
   gap: 16px;
 }
 
-/* Section Heading Text */
-.section-title {
-  font-size: 0.75rem;
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--text-faint);
   font-weight: 700;
-  margin: 0 0 8px 0;
+  letter-spacing: 0.04em;
 }
 
-/* Action Buttons */
-.card-actions {
-  display: flex;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-/* Modal Header Layout  */
-.modal-card .info-header {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  gap: 12px;
-  align-items: center;
-}
-
-/* ── Product Title ── */
-.modal-card .product-name {
-  font-size: 1.3rem;
-  font-weight: 700;
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin: 0;
-  flex: 1;
 }
+
+/* --- Status & Badges --- */
 
 /* ── Price & Category Row ── */
 .price-category-row {
@@ -151,6 +158,15 @@
   border-radius: 8px;
 }
 
+/* Status colors */
+.status-low {
+  color: var(--status-error);
+}
+
+.status-ok {
+  color: var(--status-success);
+}
+
 /* ── Stock Badge ── */
 .stock-badge {
   font-size: 0.8rem;
@@ -167,40 +183,14 @@
   color: var(--status-error);
 }
 
-/* Single Detail Item */
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.detail-label {
-  font-size: 0.7rem;
+/* --- Description & Section Titles --- */
+.section-title {
+  font-size: 0.75rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-faint);
   font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.detail-value {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-/* Status colors */
-.status-low {
-  color: var(--status-error);
-}
-
-.status-ok {
-  color: var(--status-success);
-}
-
-/* Description Section */
-.description-section {
-  display: flex;
-  flex-direction: column;
+  margin: 0 0 8px 0;
 }
 
 .description-text {
@@ -213,8 +203,22 @@
   margin: 0;
 }
 
+/* Description Section */
+.modal-body .description-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Action Buttons --- */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
 /* primary action button */
-.btn-primary {
+.card-actions .btn-primary {
   flex: 1;
   background: #0f172a;
   color: white;
@@ -222,17 +226,18 @@
   padding: 10px;
   border-radius: 8px;
   font-weight: 600;
+  justify-content: center;
   font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.2s;
 }
 
-.btn-primary:hover {
+.card-actions .btn-primary:hover {
   background: var(--text-secondary);
 }
 
 /* secondary buttons */
-.btn-icon {
+.card-actions .btn-icon {
   background: white;
   border: 1px solid var(--border-default);
   padding: 8px 14px;
@@ -241,30 +246,31 @@
   font-weight: 600;
   color: #475569;
   transition: background 0.2s;
-  font-size:0.8rem;
+  font-size: 0.8rem;
 }
 
-.btn-icon:hover {
+.card-actions .btn-icon:hover {
   background: var(--bg-subtle);
 }
 
 /* delete button */
-.btn-danger {
+.card-actions .btn-danger {
   background: var(--status-error);
   border-color: var(--status-error);
 }
 
-.btn-danger:hover {
+.card-actions .btn-danger:hover {
   background: #dc2626;
 }
 
-.delete-icon {
+.btn-icon .delete-icon {
   font-size: 1.1rem;
   color: white;
   display: block;
+  background: var(--status-error);
 }
 
-/* Animations */
+/* --- Keyframes --- */
 @keyframes backdropFadeIn {
   from {
     opacity: 0;

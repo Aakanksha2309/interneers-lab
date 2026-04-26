@@ -1,6 +1,6 @@
 /* CSS for Product card component */
 
-/* Main product card container */
+/* ----Main product card container---- */
 .product-card {
   background: var(--bg-surface);
   border-radius: 16px; /* Smoother corners like Apple/Figma */
@@ -12,13 +12,13 @@
   flex-direction: column;
 }
 
-/* Card hover effect */
+/* ----Card hover effect---- */
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Product image section (fixed height to keep grid uniform) */
+/*---- Product image section ---- */
 .image-container {
   width: 100%;
   height: 180px;
@@ -32,7 +32,7 @@
   object-fit: cover;
 }
 
-/* Content area below image */
+/* ----Content area below image---- */
 .product-info {
   padding: 20px;
   display: flex;
@@ -41,7 +41,7 @@
   flex: 1;
 }
 
-/* Header section holding name and stock info */
+/* ----Header section holding name and stock info ----*/
 .info-header {
   display: flex;
   flex-direction: column;
@@ -50,7 +50,7 @@
   align-items: flex-start;
 }
 
-/* Product title styling */
+/* ----Product title styling ----*/
 .product-name {
   font-size: 1.3rem;
   font-weight: 700;
@@ -59,7 +59,7 @@
   flex: 1;
 }
 
-/* Stock indicator shown on product card */
+/* ----Stock indicator shown on product card---- */
 .product-card .stock-badge {
   font-size: 0.9rem;
   font-weight: 700;
@@ -99,7 +99,7 @@
   color: var(--text-primary);
 }
 
-/* Category label */
+/* ----Category label---- */
 .category-tag {
   font-size: 0.8rem;
   font-weight: 600;
@@ -109,7 +109,7 @@
   border-radius: 8px;
 }
 
-/* Button used to open product details */
+/* ----Button used to open product details ----*/
 .expand-btn {
   background: var(--bg-subtle);
   border: 1px solid var(--border-default);
@@ -167,7 +167,7 @@
   min-height: 2.8rem;
 }
 
-/* Brand label styling */
+/* ----Brand label styling---- */
 .product-brand {
   font-size: 0.8rem;
   font-weight: 600;
@@ -191,4 +191,17 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+.product-select-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #2563eb;
+  z-index: 2;
+  appearance: auto;
+  -webkit-appearance: auto;
+  opacity: 1;
 }

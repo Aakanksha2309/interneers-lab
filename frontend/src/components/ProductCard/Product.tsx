@@ -2,13 +2,26 @@
  * Displays a single product card with basic info.
  * Also handles opening a modal to show more details.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Product.css";
-import { MOCK_CATEGORIES } from "../../mockData";
-import { Product as ProductType } from "../../type";
+import { Product as ProductType, Category } from "../../type";
 import ProductDetailModal from "../ProductModal/ProductDetailModal";
+import axios from "axios";
 
-const Product = (props: ProductType) => {
+interface ProductCardProps {
+  product: ProductType;
+  categories: Category[];
+  onDeleteSuccess: () => void;
+  selectedIds?: string[];
+  onToggleSelect?: (id: string) => void;
+}
+const Product = ({
+  product,
+  categories = [],
+  onDeleteSuccess,
+  selectedIds,
+  onToggleSelect,
+}: ProductCardProps) => {
   // controls modal open/close
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -20,11 +33,13 @@ const Product = (props: ProductType) => {
     selling_price,
     description,
     brand,
-  } = props;
+  } = product;
 
   // find category name from id
-  const categoryObject = MOCK_CATEGORIES.find((cat) => cat.id === category_id);
-  const categoryName = categoryObject ? categoryObject.title : "Unknown";
+  const categoryObject = (categories || []).find(
+    (cat) => String(cat.id) === String(category_id),
+  );
+  const categoryName = categoryObject ? categoryObject.title : "Uncategorized";
 
   // stock status checks
   const isLowStock =
@@ -32,19 +47,50 @@ const Product = (props: ProductType) => {
   const outOfStock = warehouse_quantity === 0;
 
   // adding random image based on product name
-  const imageUrl = `https://loremflickr.com/600/300/${name.split(" ")[0]}`;
+  const [imageUrl, setImageUrl] = useState(
+    `https://placehold.co/300x200?text=${encodeURIComponent(name)}`,
+  );
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const { data } = await axios.get(
+          `https://api.pexels.com/v1/search?query=${encodeURIComponent(name)}&per_page=1`,
+          {
+            headers: {
+              Authorization: process.env.REACT_APP_PEXELS_API_KEY ?? "",
+            },
+          },
+        );
+        if (data.photos?.[0]?.src?.medium) {
+          setImageUrl(data.photos[0].src.medium);
+        }
+      } catch (error) {
+        console.error("Pexels fetch failed:", error);
+      }
+    };
+    fetchImage();
+  }, [name]);
 
   return (
     <>
       <div className="product-card">
         <div className="image-container">
-          {/* gray out the image if the item is not in stock */}
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              className="product-select-checkbox"
+              checked={selectedIds?.includes(String(product.id)) ?? false}
+              onChange={() => onToggleSelect(String(product.id))}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+
           <img
             src={imageUrl}
             alt={name}
             className={outOfStock ? "grayscale-img" : ""}
           />
-          {/* stock label */}
           <span
             className={`stock-badge ${
               outOfStock ? "out-of-stock" : isLowStock ? "low" : "in-stock"
@@ -86,8 +132,13 @@ const Product = (props: ProductType) => {
       {/* Conditionally render the modal when 'View Details' is clicked */}
       {isModalOpen && (
         <ProductDetailModal
-          product={props}
+          product={product}
+          categories={categories}
           onClose={() => setIsModalOpen(false)}
+          onDeleteSuccess={() => {
+            setIsModalOpen(false);
+            onDeleteSuccess();
+          }}
         />
       )}
     </>

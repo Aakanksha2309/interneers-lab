@@ -6,11 +6,12 @@ from ..exceptions import CategoryNotFoundError,BusinessValidationError
 from ..repositories.product_category_repository import CategoryRepository
 from mongoengine.errors import NotUniqueError
 from bson import ObjectId
-
+from ..repositories.product_repository import ProductRepository
 
 class CategoryService:
     def __init__(self):
         self.repository = CategoryRepository()
+        self.product_repository = ProductRepository() 
         
     # Create a new category 
     def create_category(self,data):
@@ -25,7 +26,14 @@ class CategoryService:
     
     # Get a list of every category
     def get_all_categories(self):
-        return self.repository.get_all()
+        categories= self.repository.get_all()
+        result = []
+        for cat in categories:
+            result.append({
+                "category": cat,
+                "product_count": self.product_repository.count_by_category(cat.id)
+            })
+        return result
     
     # Find one category by id 
     def get_category_by_id(self,category_id):
@@ -41,15 +49,17 @@ class CategoryService:
         #Category id is valid or not 
         if not ObjectId.is_valid(category_id):              
             raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
-  
-        title = data.get("title")
         payload = {}
-        if title is not None:
-            title = title.strip()
+  
+        if "title" in data:
+            title = data.get("title").strip()
             existing = self.repository.get_by_title_case_insensitive(title)
             if existing and str(existing.id) != category_id:
                 raise BusinessValidationError(f"Category '{title}' already exists.")
             payload["title"] = title
+
+        if "description" in data:
+            payload["description"] = data.get("description")
 
         updated = self.repository.update(category_id, payload)
         if updated is None:
