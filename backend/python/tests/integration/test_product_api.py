@@ -147,7 +147,7 @@ def test_create_duplicate_product(api_client):
     api_client.post("/api/products/", payload, format="json")
     res = api_client.post("/api/products/", payload, format="json")
 
-    assert res.status_code in [201, 400]
+    assert res.status_code==400
 
 
 # --------------------------------

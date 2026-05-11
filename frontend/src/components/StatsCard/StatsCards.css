@@ -1,0 +1,104 @@
+/* Styling for stats cards section */
+
+/* Layout grid: splits the 4 cards into equal columns */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+  padding-left:2rem;
+  padding-right:2rem;
+}
+
+/* Card base: includes a bottom border for color coding */
+.stat-card {
+  background: var(--bg-surface);
+  border-radius: 14px;
+  border-bottom: 3px solid;
+  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* hover effect */
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* color themes : mapped to status */
+.accent-blue {
+  border-color: var(--brand-primary);
+}
+.accent-orange {
+  border-color: var(--status-warning);
+}
+.accent-amber {
+  border-color: var(--status-amber);
+}
+.accent-green {
+  border-color: var(--status-success);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+}
+
+/* dynamically color the icon based on card's accent class */
+.accent-blue .stat-icon {
+  color: var(--brand-primary);
+}
+.accent-orange .stat-icon {
+  color: var(--status-warning);
+}
+.accent-amber .stat-icon {
+  color: var(--status-amber);
+}
+.accent-green .stat-icon {
+  color: var(--status-success);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* main value */
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* subtitle text */
+.stat-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

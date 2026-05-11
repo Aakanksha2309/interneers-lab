@@ -15,7 +15,7 @@ class ProductSerializer(serializers.Serializer):
     category_id = serializers.CharField(write_only=True,required=False)
     brand = serializers.CharField(required=True)
    #inventory tracking fields
-    warehouse_quantity = serializers.IntegerField(min_value=0)
+    warehouse_quantity = serializers.IntegerField(min_value=0,required=False,default=0)
     low_stock_threshold = serializers.IntegerField(min_value=1,required=False, default=10)
 
     # perishable

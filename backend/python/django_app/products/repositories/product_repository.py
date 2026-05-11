@@ -71,11 +71,10 @@ class ProductRepository:
         product.save()
         return product
 
-    # Unlink a product from its category and assigning it in uncategorised section
-    def remove_category(self,product,default_category):
-        product.category = default_category
-        product.save()
-        return product
+    # Unlink products from their category and assigning it in uncategorised section
+    def bulk_remove_category(self,product_ids,default_category):
+        Product.objects(id__in=product_ids).update(set__category=default_category)
+        return True
 
     # Create many products at once
     def bulk_create(self, data_list):
@@ -87,8 +86,37 @@ class ProductRepository:
             "ids": [str(p.id) for p in created_docs]
         }
 
+    #Count produts belonging to a category
+    def count_by_category(self, category_id):
+        return Product.objects(category=category_id).count()
 
+    # Calculating total inventory value 
+    def get_global_total_value(self):
+        products = Product.objects.all() 
+        total = 0
+        for p in products:
+            price = float(getattr(p, 'selling_price', 0) or 0)
+            qty = int(getattr(p, 'warehouse_quantity', 0) or 0)
+            total += (price * qty)
+            
+        return round(total, 2)
+        
+    def get_existing_ids(self, product_ids):
+        # Returns only the IDs of products that exist in the database
+        existing = Product.objects(id__in=product_ids).scalar('id')
+        return list(existing)
 
+    # Deletes bulk products from a category 
+    def bulk_delete(self, product_ids):
+        deleted_count = Product.objects(id__in=product_ids).delete()
+        return deleted_count > 0
 
+    # Check for duplicate name and brand excluding specific product 
+    def get_by_name_and_brand_excluding(self, name, brand, exclude_id):
+        return Product.objects(
+            name__iexact=name,
+            brand__iexact=brand,
+            id__ne=exclude_id
+        ).first()
 
 

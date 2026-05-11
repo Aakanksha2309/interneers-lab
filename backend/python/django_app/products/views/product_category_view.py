@@ -31,9 +31,13 @@ class ProductCategoryAPIView(APIView):
       
     # List all categories
     def get(self, request):
-        categories = self.category.get_all_categories()
-        serializer = ProductCategorySerializer(categories, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        categories_with_count = self.category.get_all_categories()
+        result = []
+        for item in categories_with_count:
+            cat_data = ProductCategorySerializer(item["category"]).data
+            cat_data["product_count"] = item["product_count"]
+            result.append(cat_data)
+        return Response(result, status=status.HTTP_200_OK)
 
 
 class ProductCategoryDetailAPIView(APIView):   

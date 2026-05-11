@@ -106,12 +106,14 @@ class ProductService:
             limit=limit
         )
         total_pages = math.ceil(total_count / limit) if limit > 0 else 1
+        global_total_value = self.repository.get_global_total_value()
 
         return {
             "products": products,
             "metadata": {
                 "total_items": total_count,
                 "total_pages": total_pages,
+                "total_inventory_value":global_total_value,
                 "current_page": page,
                 "limit": limit,
                 "has_next": page < total_pages,
@@ -142,6 +144,19 @@ class ProductService:
     def update_product(self, product_id, data):
 
         payload = data.copy()
+        new_name=payload.get("name")
+        new_brand=payload.get("brand")
+
+        if new_name or new_brand:
+            current=self.repository.get_by_id(product_id)
+            if not current:
+                raise ProductNotFoundError(f"Product with ID {product_id} not found.")
+            check_name=new_name or current.name
+            check_brand=new_brand or current.brand
+
+            duplicate=self.repository.get_by_name_and_brand_excluding(check_name,check_brand,product_id)
+            if duplicate:
+                raise BusinessValidationError(f"Conflict:{check_name} by {check_brand} already exists")
         if "category_id" in payload:
             payload = self._merge_category_into_payload(payload)
         updated = self.repository.update(product_id, payload)
@@ -165,36 +180,83 @@ class ProductService:
             raise CategoryNotFoundError("Category not found!")
         return self.repository.get_products_by_category_id(category.id)
 
-    #Assign category to a product
-    def add_product_to_category(self, category_id, product_id):
-        product = self.get_product(product_id)
+    #Assign category to selected products 
+    def bulk_add_products_to_category(self, product_ids,category_id):
+        if not product_ids:
+            raise BusinessValidationError("product_ids must be a non-empty list")
+
+        if not isinstance(product_ids, list):
+            raise BusinessValidationError(
+                f"product_ids must be a list, got {type(product_ids).__name__}"
+            )
+
         if not ObjectId.is_valid(category_id):
-            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
-        if product.category and str(product.category.id) == str(category_id):
-            return product
+            raise CategoryNotFoundError(f"Invalid category ID format:'{category_id}'")
+
         category = self.category_repository.get_by_id(category_id)
         if not category:
             raise CategoryNotFoundError("Given category not found!")
-        return self.repository.assign_category(product, category)
+        
+        updated=[]
+        errors=[]
 
-    #Remove product from a category( assigning uncategorised category to such products )
-    def remove_product_from_category(self, category_id, product_id):
-        product = self.get_product(product_id)
-        if not ObjectId.is_valid(category_id):
-            raise CategoryNotFoundError(f"Invalid ID format: '{category_id}'")
-        if not product.category or str(product.category.id) != str(category_id):
-            raise BusinessValidationError(
-                f"Conflict: Product {product_id} is not currently in category {category_id}. "
-                "Action aborted to prevent accidental data overwriting."
-            )
+        for pid in product_ids:
+            try:
+                product = self.get_product(pid)
+                updated_product=self.repository.assign_category(product,category)
+                updated.append(updated_product)
+            except ProductNotFoundError as e:
+                errors.append({"product_id": pid, "error": str(e)})
+            except CategoryNotFoundError as e:
+                raise CategoryNotFoundError(
+                f"Target category '{category_id}' not found or invalid. "
+                f"Bulk move aborted. {len(updated)} products were moved before this failure."
+                )
+            except BusinessValidationError as e:
+                errors.append({"product_id": pid, "error": str(e)})
+
+        return updated, errors
+
+    # Remove products from a category( assigning uncategorised category to such products )
+    def bulk_remove_products_from_category(self,product_ids):
+        valid_object_ids=[]
+        for p_id in product_ids:
+            if not ObjectId.is_valid(p_id):
+                raise BusinessValidationError(f"Invalid Product ID format: {p_id}")
+            valid_object_ids.append(ObjectId(p_id))
+
+        existing_products = self.repository.get_existing_ids(valid_object_ids)
+    
+        if len(existing_products) != len(valid_object_ids):
+            # Find which ones are missing 
+            missing = set(valid_object_ids) - set(existing_products)
+            raise ProductNotFoundError(f"Action failed. Products not found: {list(missing)}")
+
         default_cat = self.category_repository.get_by_title_case_insensitive("Uncategorized") 
-        # Create it if it doesn't exist
+        # Create category if it doesn't exist
         if not default_cat:
             default_cat = self.category_repository.create({
                 "title": "Uncategorized",
                 "description": "Default category for products"
             })
-        return self.repository.remove_category(product, default_cat)
+        return self.repository.bulk_remove_category(product_ids, default_cat)
+
+    # Delete bulk products from a category
+    def bulk_delete_products(self, product_ids):
+        valid_ids = [ObjectId(p_id) for p_id in product_ids if ObjectId.is_valid(p_id)]
+        
+        if len(valid_ids) != len(product_ids):
+            raise BusinessValidationError("One or more Product IDs are invalid.")
+
+        # Check if products exist
+        existing_ids = self.repository.get_existing_ids(valid_ids)
+        if len(existing_ids) != len(valid_ids):
+            raise ProductNotFoundError("Some products selected for deletion were not found.")
+        success = self.repository.bulk_delete(valid_ids)
+    
+        if not success:
+            raise BusinessValidationError("Database failed to delete the selected products.")
+        return True
 
     #Bulk upload data using csv files 
     def bulk_create_from_csv(self, file_obj):

@@ -1,0 +1,286 @@
+/* ---- Page Layout & Container ---- */
+
+.add-product-page-root {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: "Inter", -apple-system, sans-serif;
+  }
+  
+  .add-product-container {
+    max-width: 80%;
+    margin: 0 auto;
+  }
+  
+  /* ---- Breadcrumb Navigation ---- */
+  
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 24px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+  
+  .breadcrumbs span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .breadcrumbs span:hover {
+    color: #2563eb;
+  }
+  
+  .breadcrumbs .current {
+    color: #1e293b;
+    font-weight: 600;
+    cursor: default;
+  }
+  
+  .separator {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+  }
+  
+  /*---- Form Card & Sections ---- */
+  
+  .modern-form.form-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+  
+  .form-section {
+    padding: 40px;
+  }
+  
+  .form-divider {
+    height: 1px;
+    background-color: #f1f5f9;
+    margin: 32px 0;
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  
+  .card-header h3 {
+    font-size: 1.15rem;
+    color: #1e293b;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .header-icon {
+    color: #3b82f6;
+    font-size: 1.3rem;
+  }
+  
+  /* ----Grid & Input Groups----  */
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .input-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  
+  .input-group input,
+  .select-wrapper select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1e293b;
+    transition: all 0.2s ease;
+    background-color: #fff;
+  }
+  
+  .input-group input:focus,
+  .select-wrapper select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+  
+  .input-group input::placeholder {
+    color: #94a3b8;
+  }
+  
+  .input-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #1e293b;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .input-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+  
+  .input-group textarea::placeholder {
+    color: #94a3b8;
+  }
+  
+  /*---- Select & Special Inputs---- */
+  
+  .select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .select-wrapper select {
+    appearance: none;
+  }
+  
+  .select-icon {
+    position: absolute;
+    right: 12px;
+    pointer-events: none;
+    color: #64748b;
+  }
+  
+  .checkbox-label-wrapper span {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1e293b;
+    line-height: 1;
+  }
+  
+  .checkbox-label-wrapper:hover span {
+    color: #2563eb;
+  }
+  
+  /* ----Error & Disabled States ----  */
+  
+  .has-error input,
+  .has-error select {
+    border-color: #ef4444;
+  }
+  
+  .error-text {
+    color: #ef4444;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .form-global-error {
+    background-color: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #c53030;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+  }
+  
+  .disabled-input label {
+    color: #94a3b8;
+  }
+  
+  .disabled-input input {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
+  
+  /* ---- Form Footer & Buttons ---- */
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 24px 40px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  .btn-discard {
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+  }
+  
+  .btn-discard:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #1e293b;
+  }
+  
+  .btn-save {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s;
+    font-size: 0.8rem;
+  }
+  
+  .btn-save:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 10px -1px rgba(37, 99, 235, 0.3);
+  }
+  
+  .btn-save:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* ---- Utilities ----  */
+  
+  .span-full {
+    grid-column: 1 / -1;
+    margin-top: 25px;
+  }
